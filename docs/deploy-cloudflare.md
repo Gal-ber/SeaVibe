@@ -22,7 +22,9 @@
 5. יצירת המסד: `npx wrangler d1 create seavibes-reports`, והעתקת ה-`database_id` לקובץ `wrangler.toml`.
 6. יצירת הטבלה: `npx wrangler d1 migrations apply seavibes-reports --remote`.
 7. **"המלח" הסודי — אתה מזין בעצמך, לא בצ'אט ולא בקוד:**
-   `npx wrangler pages secret put REPORTER_SALT`
+   `openssl rand -hex 32 | npx wrangler pages secret put REPORTER_SALT --project-name seavibes` (לסביבה הציבורית)
+   `openssl rand -hex 32 | npx wrangler pages secret put REPORTER_SALT --project-name seavibes --env preview` (לאתר הבדיקה)
+   חשוב: כל סביבה צריכה סוד משלה.
    ערך מומלץ: 64 תווים אקראיים (למשל מהפקודה `openssl rand -hex 32`).
 8. שינוי `reportsMode` ל-`remote` בקובץ `config/app.config.json` (שינוי נפרד שאתה סוקר).
 9. פריסה לסביבת בדיקה בלבד: `npx wrangler pages deploy dist --branch=preview`.
