@@ -36,3 +36,12 @@
   - סריקת סודות ב-CI.
 - **מה מוכן:** `.github/workflows/check.yml` מריץ את `npm run check` (כולל gitleaks ו-npm audit). הוא יתחיל לפעול ברגע שהמאגר ייפתח.
 - **עד אז:** הקוד קיים רק במחשב של הבעלים, בלי גיבוי. מומלץ לא לדחות.
+- **עדכון (2026-11-13):** הבעלים פתח את `https://github.com/Gal-ber/SeaVibe.git` ויחבר בעצמו דרך הטרמינל. הכתובת כבר הוגדרה מקומית (`origin`).
+- ⚠️ **לפני ההעלאה הראשונה:** המאגר נמצא **ציבורי** (git מקבל ממנו תשובה בלי התחברות). להפוך לפרטי: Settings ← Danger Zone ← Change repository visibility ← Make private.
+- **ההעלאה:** `git checkout main && git push -u origin main`. אחר כך, אם רוצים, גם `git push origin stage-5-live-data`.
+- **הגנה בחינם:** הגנה על ענף `main` דורשת תשלום במאגר פרטי בחשבון חינמי. במקומה:
+  - עבודה בענפים, והבעלים מאשר מיזוג.
+  - gitleaks לפני כל commit.
+  - בדיקות CI בכל העלאה.
+  - אימות דו-שלבי (2FA) בחשבון GitHub.
+  - התראות Dependabot (חינם גם במאגר פרטי).
