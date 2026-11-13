@@ -41,13 +41,13 @@ export default function ActivitySelector({ selectedActivity, onSelect, onOpenPre
             className={`flex-shrink-0 flex flex-col items-center gap-2 px-6 py-5 rounded-[2rem] transition-all duration-300 border-2 ${
               active
                 ? 'bg-sea-700 text-white border-sea-700 shadow-xl shadow-sea-500/30 scale-105 z-10'
-                : 'bg-white/70 backdrop-blur-md text-slate-600 border-transparent hover:bg-white hover:border-sea-100'
+                : 'bg-white/90 backdrop-blur-md text-slate-700 border-transparent hover:bg-white hover:border-sea-100'
             }`}
           >
             <div className={`p-3 rounded-2xl ${active ? 'bg-white/20' : 'bg-sea-50 text-sea-500'}`}>
               <IconComponent size={24} strokeWidth={active ? 2.5 : 2} aria-hidden="true" />
             </div>
-            <span className={`text-[10px] font-black uppercase tracking-wider whitespace-nowrap ${active ? 'text-white' : 'text-slate-500'}`}>
+            <span className={`text-[10px] font-black uppercase tracking-wider whitespace-nowrap ${active ? 'text-white' : 'text-slate-700'}`}>
               {t(`activity.${activity.id}`)}
             </span>
           </button>
@@ -57,7 +57,7 @@ export default function ActivitySelector({ selectedActivity, onSelect, onOpenPre
       {onOpenPreferences && (
         <button
           onClick={onOpenPreferences}
-          className="flex-shrink-0 flex flex-col items-center gap-2 px-6 py-5 rounded-[2rem] transition-all duration-300 bg-white/40 backdrop-blur-md text-slate-500 border-2 border-dashed border-slate-200 hover:bg-white hover:border-slate-300 group"
+          className="flex-shrink-0 flex flex-col items-center gap-2 px-6 py-5 rounded-[2rem] transition-all duration-300 bg-white/90 backdrop-blur-md text-slate-700 border-2 border-dashed border-slate-200 hover:bg-white hover:border-slate-300 group"
         >
           <div className="p-3 rounded-2xl bg-slate-50 text-slate-400 group-hover:text-slate-500">
             <LucideIcons.ClipboardEdit size={24} strokeWidth={2} aria-hidden="true" />

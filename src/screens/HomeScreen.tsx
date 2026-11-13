@@ -129,7 +129,7 @@ export default function HomeScreen({ settings, toggleFavorite, setPrimary, reope
               </div>
             )}
             <div className="flex justify-center">
-              <button onClick={() => setDetailId(selectedBeach.id)} className="min-h-11 flex items-center gap-2 px-8 py-5 bg-white/60 backdrop-blur-md rounded-[2rem] border border-white/50 text-slate-800 font-black hover:bg-white/80 transition-all shadow-sm">
+              <button onClick={() => setDetailId(selectedBeach.id)} className="min-h-11 flex items-center gap-2 px-8 py-5 bg-white/90 backdrop-blur-md rounded-[2rem] border border-white/50 text-slate-800 font-black hover:bg-white/80 transition-all shadow-sm">
                 <span>{t('app.openDetails')}</span>
                 <LucideIcons.ChevronDown size={18} aria-hidden="true" />
               </button>

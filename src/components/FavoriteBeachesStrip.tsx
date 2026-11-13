@@ -37,12 +37,12 @@ export default function FavoriteBeachesStrip({ favorites, selectedActivity, curr
             className={`flex-shrink-0 w-36 p-5 rounded-[2rem] border-2 transition-all text-start relative ${
               isActive
                 ? 'bg-sea-700 border-sea-700 shadow-xl shadow-sea-500/30 text-white'
-                : 'bg-white/60 backdrop-blur-md border-white/50 text-slate-800 hover:bg-white/80'
+                : 'bg-white/90 backdrop-blur-md border-white/50 text-slate-800 hover:bg-white'
             }`}
           >
             <div className="flex flex-col h-full justify-between">
               <div>
-                <div className={`text-[11px] font-black uppercase tracking-widest mb-0.5 ${isActive ? 'text-white' : 'text-slate-600'}`}>
+                <div className={`text-[11px] font-black uppercase tracking-widest mb-0.5 ${isActive ? 'text-white' : 'text-slate-700'}`}>
                   {beachCity(beach, lang)}
                 </div>
                 <div className="text-sm font-black truncate">{beachName(beach, lang)}</div>
@@ -53,12 +53,12 @@ export default function FavoriteBeachesStrip({ favorites, selectedActivity, curr
                   <span className={`text-xl font-black leading-none ${isActive ? 'text-white' : 'text-sea-600'}`}>
                     {recommendation ? recommendation.score : unavailable(lang)}
                   </span>
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-white' : 'text-slate-600'}`}>
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-white' : 'text-slate-700'}`}>
                     {t('strip.vibe')}
                   </span>
                 </div>
                 
-                <div className={`flex flex-col items-end gap-0.5 ${isActive ? 'text-white' : 'text-slate-600'}`}>
+                <div className={`flex flex-col items-end gap-0.5 ${isActive ? 'text-white' : 'text-slate-700'}`}>
                   <div className="flex items-center gap-1">
                     <LucideIcons.Waves size={10} />
                     <span className="text-[10px] font-bold">{formatValue('waveHeight', beach.forecast.waveHeight, lang)}</span>
