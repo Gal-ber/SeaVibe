@@ -1,0 +1,6 @@
+{
+  "name": "SeaVibe",
+  "description": "תחזית ים בשפה של בני אדם - המלצות לפעילות ימית לפי מקום וזמן.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}
