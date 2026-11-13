@@ -1,86 +1,96 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState } from 'react';
+// חיפוש חוף בעברית או באנגלית, בלי תלות בניקוד ובגרשיים. שדה ריק מציג את המועדפים.
+// אין תוצאה: הודעה ורשימת החופים הנתמכים (לא ממציאים חוף). נסגר ב-Esc, בבחירה ובלחיצה מחוץ.
+// מתי נוגעים: כשמשנים את התנהגות החיפוש. הניקוי של הטקסט נמצא ב-src/data/beaches.ts.
+import React, { useEffect, useId, useRef, useState } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { Beach } from '../types';
-import { BEACHES } from '../data/beaches';
+import { BEACHES, beachCity, beachName, searchBeaches } from '../data/beaches';
+import { BeachInfo } from '../types';
+import { useI18n } from '../i18n/I18nProvider';
 
 interface BeachSearchProps {
   onSelect: (beachId: string) => void;
   favorites: string[];
   onToggleFavorite: (beachId: string) => void;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export default function BeachSearch({ onSelect, favorites, onToggleFavorite, inputRef }: BeachSearchProps) {
+  const { t, lang } = useI18n();
   const [query, setQuery] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const listId = useId();
 
-  const results = query.trim() 
-    ? BEACHES.filter(b => 
-        b.name.includes(query) || 
-        b.city.includes(query)
-      ) 
-    : isFocused ? BEACHES.filter(b => favorites.includes(b.id)) : [];
+  useEffect(() => {
+    const onPointer = (e: PointerEvent) => {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointer);
+    return () => document.removeEventListener('pointerdown', onPointer);
+  }, []);
+
+  const hasQuery = query.trim().length > 0;
+  const results: BeachInfo[] = hasQuery ? searchBeaches(query) : BEACHES.filter((b) => favorites.includes(b.id));
+  const showList = open && (hasQuery || results.length > 0);
+
+  const choose = (id: string) => {
+    onSelect(id);
+    setQuery('');
+    setOpen(false);
+  };
+
+  const row = (beach: BeachInfo) => (
+    <li key={beach.id} className="border-b border-slate-50 flex items-center justify-between hover:bg-slate-50 transition-colors">
+      <button onClick={() => choose(beach.id)} className="flex-1 min-h-11 p-4 flex items-center gap-4 text-start">
+        <span className="w-10 h-10 rounded-xl bg-sea-50 flex items-center justify-center text-sea-600">
+          <LucideIcons.MapPin size={20} aria-hidden="true" />
+        </span>
+        <span>
+          <span className="block font-extrabold text-slate-800">{beachName(beach, lang)}</span>
+          <span className="block text-[11px] font-bold text-slate-600">{beachCity(beach, lang)}</span>
+        </span>
+      </button>
+      <button
+        onClick={() => onToggleFavorite(beach.id)}
+        aria-label={t(favorites.includes(beach.id) ? 'aria.favoriteRemove' : 'aria.favoriteAdd')}
+        aria-pressed={favorites.includes(beach.id)}
+        className={`min-w-11 min-h-11 me-2 rounded-full flex items-center justify-center ${favorites.includes(beach.id) ? 'text-rose-600' : 'text-slate-400 hover:text-slate-600'}`}
+      >
+        <LucideIcons.Heart size={20} fill={favorites.includes(beach.id) ? 'currentColor' : 'none'} aria-hidden="true" />
+      </button>
+    </li>
+  );
 
   return (
-    <div className="relative z-20" dir="rtl">
-      <div className={`flex items-center gap-3 bg-white/70 backdrop-blur-md rounded-3xl px-5 py-4 border-2 transition-all ${isFocused ? 'border-sea-500 bg-white ring-4 ring-sea-500/10' : 'border-white/50 shadow-sm'}`}>
-        <LucideIcons.Search className="text-slate-400" size={20} />
-        <input 
+    <div ref={boxRef} className="relative z-20" onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}>
+      <div className={`flex items-center gap-3 bg-white/80 backdrop-blur-md rounded-3xl px-5 py-3 border-2 transition-all ${open ? 'border-sea-500 bg-white ring-4 ring-sea-500/10' : 'border-white/50 shadow-sm'}`}>
+        <LucideIcons.Search className="text-slate-500" size={20} aria-hidden="true" />
+        <input
           ref={inputRef}
-          type="text" 
-          placeholder="חפש חוף, מרינה או אזור"
-          className="bg-transparent border-none outline-none flex-1 text-slate-800 font-bold placeholder:text-slate-400 placeholder:font-medium"
+          type="search"
+          role="combobox"
+          aria-label={t('search.label')}
+          aria-expanded={showList}
+          aria-controls={listId}
+          placeholder={t('search.placeholder')}
+          className="bg-transparent border-none outline-none flex-1 min-h-11 text-slate-800 font-bold placeholder:text-slate-500 placeholder:font-medium"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
         />
       </div>
 
-      {isFocused && (results.length > 0 || query) && (
-        <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden max-h-[60vh] overflow-y-auto no-scrollbar">
-          {!query && favorites.length > 0 && (
-             <div className="px-5 pt-5 pb-2">
-               <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                 <LucideIcons.Heart size={12} className="text-rose-500" />
-                 המועדפים שלך
-               </h4>
-             </div>
-          )}
+      {showList && (
+        <div id={listId} className="absolute top-full inset-x-0 mt-3 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden max-h-[50vh] overflow-y-auto no-scrollbar">
+          {!hasQuery && <p className="px-5 pt-5 pb-2 text-[11px] font-black text-slate-600 uppercase tracking-widest">{t('search.favorites')}</p>}
           {results.length > 0 ? (
-            results.map(beach => (
-              <div 
-                key={beach.id}
-                className="p-4 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50 transition-colors"
-                onMouseDown={() => onSelect(beach.id)}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-sea-50 flex items-center justify-center text-sea-500">
-                    <LucideIcons.Anchor size={20} />
-                  </div>
-                  <div>
-                    <div className="font-extrabold text-slate-800">{beach.name}</div>
-                    <div className="text-[10px] font-bold text-slate-400">{beach.city}</div>
-                  </div>
-                </div>
-                <button 
-                   onMouseDown={(e) => {
-                     e.stopPropagation();
-                     onToggleFavorite(beach.id);
-                   }}
-                   className={`p-2 rounded-full transition-colors ${favorites.includes(beach.id) ? 'text-rose-500' : 'text-slate-300 hover:text-slate-400'}`}
-                >
-                  <LucideIcons.Heart size={20} fill={favorites.includes(beach.id) ? 'currentColor' : 'none'} />
-                </button>
-              </div>
-            ))
+            <ul>{results.map(row)}</ul>
           ) : (
-            <div className="p-8 text-center text-slate-400 font-bold">לא נמצאו תוצאות</div>
+            <div data-testid="search-empty">
+              <p className="px-5 pt-5 text-slate-700 font-bold">{t('search.noResults')}</p>
+              <p className="px-5 pt-2 pb-2 text-[11px] font-black text-slate-600">{t('search.supported')}</p>
+              <ul>{BEACHES.map(row)}</ul>
+            </div>
           )}
         </div>
       )}

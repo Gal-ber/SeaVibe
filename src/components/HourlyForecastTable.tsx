@@ -5,8 +5,9 @@
 
 import { HourlyForecast, SelectedParameter } from '../types';
 import { motion } from 'motion/react';
-import { formatValue, UNAVAILABLE } from '../lib/formatValue';
-import texts from '../../config/texts/he.json';
+import { formatValue, unavailable } from '../lib/formatValue';
+import { useI18n } from '../i18n/I18nProvider';
+import { Lang } from '../i18n/translate';
 
 // הטבלה השעתית: כל שעות היום מאותה סדרה שממנה נלקחים ערכי הכרטיס. השורה של עכשיו מסומנת.
 
@@ -18,14 +19,15 @@ interface HourlyForecastTableProps {
 }
 
 export default function HourlyForecastTable({ data, scores, selectedParameter, currentTime }: HourlyForecastTableProps) {
+  const { t, lang } = useI18n();
   const getColumns = () => {
     const baseCols = [
-      { id: 'time', label: 'שעה' },
-      { id: 'score', label: texts['table.score'] },
-      { id: 'airTemperature', label: 'טמפ׳ אוויר' },
-      { id: 'waterTemperature', label: 'טמפ׳ מים' },
-      { id: 'wind', label: 'רוח' },
-      { id: 'waveHeight', label: 'גובה גלים' },
+      { id: 'time', label: t('table.time') },
+      { id: 'score', label: t('table.score') },
+      { id: 'airTemperature', label: t('param.airTemperature') },
+      { id: 'waterTemperature', label: t('param.waterTemperature') },
+      { id: 'wind', label: t('param.wind') },
+      { id: 'waveHeight', label: t('param.waveHeight') },
     ];
 
     // Reorder: selected first (after time)
@@ -38,15 +40,16 @@ export default function HourlyForecastTable({ data, scores, selectedParameter, c
   const columns = getColumns();
 
   return (
-    <div className="w-full overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm" dir="rtl">
+    <div className="w-full overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm">
       <div className="overflow-x-auto no-scrollbar">
-        <table className="w-full text-right border-collapse">
+        <table className="w-full text-start border-collapse">
           <thead>
             <tr className="bg-slate-50/50">
               {columns.map((col) => (
                 <th
                   key={col.id}
-                  className={`px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100 ${
+                  scope="col"
+                  className={`px-4 py-4 text-start text-[11px] font-extrabold text-slate-600 uppercase tracking-wider border-b border-slate-100 ${
                     col.id === selectedParameter ? 'text-sea-600 bg-sea-50/30' : ''
                   }`}
                 >
@@ -73,8 +76,8 @@ export default function HourlyForecastTable({ data, scores, selectedParameter, c
                     }`}
                   >
                     {col.id === 'score'
-                      ? <span data-testid="cell-score" className="font-extrabold text-slate-800">{scores.find(s => s.time === row.time)?.score ?? UNAVAILABLE}</span>
-                      : renderCellValue(row, col, row.time === currentTime)}
+                      ? <span data-testid="cell-score" className="font-extrabold text-slate-800">{scores.find(s => s.time === row.time)?.score ?? unavailable(lang)}</span>
+                      : renderCellValue(row, col, row.time === currentTime, lang, t)}
                   </td>
                 ))}
               </motion.tr>
@@ -86,28 +89,28 @@ export default function HourlyForecastTable({ data, scores, selectedParameter, c
   );
 }
 
-function renderCellValue(row: HourlyForecast, col: { id: string }, isNow: boolean) {
+function renderCellValue(row: HourlyForecast, col: { id: string }, isNow: boolean, lang: Lang, t: (k: string) => string) {
   switch (col.id) {
     case 'time':
       return (
-        <span className="font-bold text-slate-400">
+        <span className="font-bold text-slate-600">
           <bdi>{row.time}</bdi>
-          {isNow && <span className="ms-2 text-amber-600">{texts['table.now']}</span>}
+          {isNow && <span className="ms-2 text-amber-700">{t('table.now')}</span>}
         </span>
       );
     case 'airTemperature':
-      return <span data-testid="cell-airTemperature">{formatValue('temperature', row.airTemperature)}</span>;
+      return <span data-testid="cell-airTemperature">{formatValue('temperature', row.airTemperature, lang)}</span>;
     case 'waterTemperature':
-      return <span data-testid="cell-waterTemperature">{formatValue('temperature', row.waterTemperature)}</span>;
+      return <span data-testid="cell-waterTemperature">{formatValue('temperature', row.waterTemperature, lang)}</span>;
     case 'wind':
       return (
         <div className="flex flex-col">
-          <span>{row.windDirection ?? UNAVAILABLE}</span>
-          <span data-testid="cell-windSpeed" className="text-[10px] font-bold text-slate-400">{formatValue('windSpeed', row.windSpeed)}</span>
+          <span>{row.windDirection ? t(`compass.${row.windDirection}`) : unavailable(lang)}</span>
+          <span data-testid="cell-windSpeed" className="text-[11px] font-bold text-slate-600">{formatValue('windSpeed', row.windSpeed, lang)}</span>
         </div>
       );
     case 'waveHeight':
-      return <span data-testid="cell-waveHeight">{formatValue('waveHeight', row.waveHeight)}</span>;
+      return <span data-testid="cell-waveHeight">{formatValue('waveHeight', row.waveHeight, lang)}</span>;
     default:
       return null;
   }

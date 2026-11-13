@@ -1,30 +1,27 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
+// מסך הפירוט של חוף: סיכום ההמלצה, דיווחי שטח, טבלה שעתית, ניתוח רוח והסבר הציון.
+// כל המספרים כאן מאותה סדרה שעתית כמו הכרטיס במסך הראשי.
+// מתי נוגעים: כשמוסיפים או מסדרים חלקים במסך. כל חלק גדול נמצא בקובץ משלו ב-detail/.
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { Beach, ActivityId, BeachRecommendation, SelectedParameter, FieldReport } from '../types';
 import * as LucideIcons from 'lucide-react';
+import { Beach, ActivityId, BeachRecommendation, SelectedParameter, FieldReport } from '../types';
 import WindSummary from './WindSummary';
 import ParameterCard from './ParameterCard';
 import HourlyForecastTable from './HourlyForecastTable';
 import HourlyInsight from './HourlyInsight';
-import { generateHourlyInsight } from '../lib/hourlyInsight';
 import FieldReportSummaryView from './FieldReportSummary';
 import FieldReportActions from './FieldReportActions';
-import { getRecentFieldReports, summarizeFieldReports } from '../lib/fieldReports';
-import { MOCK_FIELD_REPORTS } from '../data/mockFieldReports';
-import { ACTIVITIES } from '../data/beaches';
 import DynamicSeaBackground from './DynamicSeaBackground';
+import SectionHeader from './detail/SectionHeader';
+import RecommendationSummary from './detail/RecommendationSummary';
+import WhySection from './detail/WhySection';
+import { generateHourlyInsight } from '../lib/hourlyInsight';
+import { getRecentFieldReports, summarizeFieldReports } from '../lib/fieldReports';
 import { getBackgroundState } from '../lib/utils';
 import { formatValue } from '../lib/formatValue';
 import { hourlyScores } from '../engine/recommend';
-import texts from '../../config/texts/he.json';
-
-// מסך הפירוט של חוף: סיכום ההמלצה, דיווחי שטח, טבלה שעתית, ניתוח רוח והסבר הציון.
-// כל המספרים כאן מאותה סדרה שעתית כמו הכרטיס במסך הראשי.
+import { beachName } from '../data/beaches';
+import { useI18n } from '../i18n/I18nProvider';
 
 interface DetailedBeachViewProps {
   beach: Beach;
@@ -37,265 +34,109 @@ interface DetailedBeachViewProps {
 }
 
 export default function DetailedBeachView({ beach, recommendation, isMock, selectedActivity, isFavorite, onToggleFavorite, onClose }: DetailedBeachViewProps) {
+  const { t, lang } = useI18n();
   const [selectedParam, setSelectedParam] = useState<SelectedParameter>('waveHeight');
-  const [localReports, setLocalReports] = useState<FieldReport[]>(MOCK_FIELD_REPORTS);
+  const [reports, setReports] = useState<FieldReport[]>([]);
+  const f = beach.forecast;
+  const activityLabel = t(`activity.${selectedActivity}`);
 
   const parameterOptions: { id: SelectedParameter; label: string; icon: string; value: string }[] = [
-    { id: 'waveHeight', label: 'גובה גלים', icon: 'Waves', value: formatValue('waveHeight', beach.forecast.waveHeight) },
-    { id: 'wind', label: 'רוח', icon: 'Wind', value: formatValue('windSpeed', beach.forecast.windSpeed) },
-    { id: 'airTemperature', label: 'טמפ׳ אוויר', icon: 'Thermometer', value: formatValue('temperature', beach.forecast.temperature) },
-    { id: 'waterTemperature', label: 'טמפ׳ מים', icon: 'Droplets', value: formatValue('temperature', beach.forecast.waterTemp) },
+    { id: 'waveHeight', label: t('param.waveHeight'), icon: 'Waves', value: formatValue('waveHeight', f.waveHeight, lang) },
+    { id: 'wind', label: t('param.wind'), icon: 'Wind', value: formatValue('windSpeed', f.windSpeed, lang) },
+    { id: 'airTemperature', label: t('param.airTemperature'), icon: 'Thermometer', value: formatValue('temperature', f.temperature, lang) },
+    { id: 'waterTemperature', label: t('param.waterTemperature'), icon: 'Droplets', value: formatValue('temperature', f.waterTemp, lang) },
   ];
 
   // התובנה מסתכלת על השעות מעכשיו ועד סוף היום
-  const hours = beach.forecast.hourlyForecast;
-  const nowIndex = hours.findIndex((h) => h.time === beach.forecast.currentTime);
-  const hourlyInsight = generateHourlyInsight(
-    selectedParam,
-    nowIndex >= 0 ? hours.slice(nowIndex) : hours,
-    selectedActivity
+  const hours = f.hourlyForecast;
+  const nowIndex = hours.findIndex((h) => h.time === f.currentTime);
+  const insight = generateHourlyInsight(selectedParam, nowIndex >= 0 ? hours.slice(nowIndex) : hours, selectedActivity, lang);
+  const scores = useMemo(() => hourlyScores(f, selectedActivity), [f, selectedActivity]);
+
+  const reportSummary = useMemo(
+    () => summarizeFieldReports(getRecentFieldReports(reports, beach.id, selectedActivity), activityLabel, lang),
+    [reports, beach.id, selectedActivity, activityLabel, lang],
   );
 
-  const activityLabel = ACTIVITIES.find(a => a.id === selectedActivity)?.label || '';
-
-  const reportSummary = useMemo(() => {
-    const recent = getRecentFieldReports(localReports, beach.id, selectedActivity);
-    return summarizeFieldReports(recent, activityLabel);
-  }, [localReports, beach.id, selectedActivity, activityLabel]);
-
   const handleSubmitReport = (isAccurate: boolean, reason?: string) => {
-    const newReport: FieldReport = {
-      id: Math.random().toString(36).substr(2, 9),
-      beachId: beach.id,
-      activity: selectedActivity,
-      isAccurate,
-      reason,
-      createdAt: new Date().toISOString(),
-    };
-    setLocalReports(prev => [newReport, ...prev]);
+    const report: FieldReport = { id: crypto.randomUUID(), beachId: beach.id, activity: selectedActivity, isAccurate, reason, createdAt: new Date().toISOString() };
+    setReports((prev) => [report, ...prev]);
   };
-
-  const backgroundState = getBackgroundState(beach);
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      exit={{ opacity: 0, scale: 0.97 }}
       className="fixed inset-0 z-[100] bg-slate-50 overflow-y-auto pb-20"
-      dir="rtl"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${t('detail.title')}: ${beachName(beach, lang)}`}
     >
       <div className="fixed inset-0 -z-10 h-1/2">
-        <DynamicSeaBackground state={backgroundState} />
+        <DynamicSeaBackground state={getBackgroundState(beach)} />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/80 to-slate-50" />
       </div>
 
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <button 
-          onClick={onClose}
-          aria-label={texts['nav.back']}
-          className="w-12 h-12 rounded-[1.25rem] bg-white/80 backdrop-blur-md flex items-center justify-center text-slate-400 border border-white/50 shadow-sm hover:bg-white transition-colors"
-        >
-          <LucideIcons.ChevronRight size={24} />
+      <div className="sticky top-0 z-50 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+        <button onClick={onClose} aria-label={t('nav.back')} className="w-12 h-12 rounded-[1.25rem] bg-white/90 backdrop-blur-md flex items-center justify-center text-slate-700 border border-white/50 shadow-sm hover:bg-white transition-colors">
+          <LucideIcons.ChevronRight size={24} className="ltr:rotate-180" aria-hidden="true" />
         </button>
-        
-        <div className="flex flex-col items-center">
-          <div className="text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-sm mb-0.5">SeaVibes Detailed</div>
-          <h2 className="text-xl font-black text-slate-900 drop-shadow-sm">{beach.name}</h2>
+        <div className="flex flex-col items-center min-w-0">
+          <div className="text-[11px] font-black text-slate-700 uppercase tracking-widest mb-0.5">{t('detail.title')}</div>
+          <h2 className="text-xl font-black text-slate-900 truncate">{beachName(beach, lang)}</h2>
         </div>
-
-        <button 
+        <button
           onClick={onToggleFavorite}
-          className={`w-12 h-12 rounded-[1.25rem] bg-white/80 backdrop-blur-md flex items-center justify-center transition-all border border-white/50 shadow-sm ${isFavorite ? 'text-rose-500' : 'text-slate-200 hover:text-slate-300'}`}
+          aria-label={t(isFavorite ? 'aria.favoriteRemove' : 'aria.favoriteAdd')}
+          aria-pressed={isFavorite}
+          className={`w-12 h-12 rounded-[1.25rem] bg-white/90 backdrop-blur-md flex items-center justify-center transition-all border border-white/50 shadow-sm ${isFavorite ? 'text-rose-600' : 'text-slate-500 hover:text-slate-700'}`}
         >
-          <LucideIcons.Heart size={24} fill={isFavorite ? 'currentColor' : 'none'} />
+          <LucideIcons.Heart size={24} fill={isFavorite ? 'currentColor' : 'none'} aria-hidden="true" />
         </button>
       </div>
 
-      <div className="max-w-2xl mx-auto p-6 space-y-12 mt-4 relative z-10">
-        {/* Main Recommendation Summary */}
-        <section className="bg-white/90 backdrop-blur-xl rounded-[3rem] p-8 border border-white shadow-2xl shadow-slate-200/50">
-          {/* מקור הנתונים: במצב mock מוצג "נתוני דוגמה" במקום זמן עדכון */}
-          {isMock && (
-            <div className="mb-4 inline-block text-[11px] font-bold text-slate-700 bg-sand-200 px-2 py-0.5 rounded-full">
-              {texts['dataBadge.mock']}
-            </div>
-          )}
-          {!recommendation ? (
-            <div className="text-center py-4">
-              <h3 className="font-black text-2xl text-slate-900 mb-2">{texts['score.insufficient']}</h3>
-              <p className="text-slate-500 font-medium">{texts['score.insufficientHint']}</p>
-            </div>
-          ) : (
-          <>
-          <div className="flex items-center gap-6 mb-8">
-            <div className="relative">
-              <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-white font-black text-3xl shadow-xl shadow-current-color/20 ${getStatusBg(recommendation.status)}`}>
-                {recommendation.score}
-              </div>
-            </div>
-            <div className="flex-1">
-               <h3 className="font-black text-2xl text-slate-900 mb-1 leading-tight">{recommendation.headline}</h3>
-               <div className="flex items-center gap-2 text-slate-400">
-                 <LucideIcons.Clock size={14} className="text-amber-500" />
-                 <span className="text-sm font-black">
-                   {texts['window.label']}: {recommendation.bestTimeWindow ? <bdi>{recommendation.bestTimeWindow}</bdi> : texts['window.none']}
-                 </span>
-               </div>
-            </div>
-          </div>
-          <p className="text-slate-500 font-medium leading-relaxed text-lg italic pr-4 border-r-2 border-slate-100">
-            "{recommendation.shortExplanation}"
-          </p>
-          </>
-          )}
-        </section>
+      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-12 mt-4 relative z-10">
+        <RecommendationSummary recommendation={recommendation} isMock={isMock} />
 
-        {/* Community Field Reports Section */}
         <section className="space-y-6">
-          <SectionHeader icon="Users" title="מה אומרים מהחוף?" subtitle="דיווחים מהשטח" />
-          <div className="bg-white/80 backdrop-blur-lg rounded-[2.5rem] p-6 border border-white shadow-xl shadow-slate-200/30">
-            <FieldReportSummaryView summary={reportSummary} />
-            <div className="mt-8 pt-8 border-t border-slate-50">
-              <FieldReportActions 
-                activityLabel={activityLabel} 
-                onSubmit={handleSubmitReport} 
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Dynamic Hourly Forecast Table */}
-        <section className="space-y-6">
-          <SectionHeader icon="BarChart3" title="ניתוח שעתית אינטראקטיבי" subtitle="בחרו נתון להשוואה" />
-          
+          <SectionHeader icon="BarChart3" title={t('detail.hourly.title')} subtitle={t('detail.hourly.subtitle')} />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {parameterOptions.map((opt) => (
-              <ParameterCard
-                key={opt.id}
-                id={opt.id}
-                label={opt.label}
-                icon={opt.icon}
-                value={opt.value}
-                isSelected={selectedParam === opt.id}
-                onClick={setSelectedParam}
-              />
+              <ParameterCard key={opt.id} {...opt} isSelected={selectedParam === opt.id} onClick={setSelectedParam} />
             ))}
           </div>
-
-          <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white shadow-xl shadow-slate-200/40">
-            <HourlyInsight insight={hourlyInsight} />
+          <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-4 sm:p-6 border border-white shadow-xl shadow-slate-200/40">
+            <HourlyInsight insight={insight} />
             <div className="mt-6">
-              <HourlyForecastTable 
-                data={hours} 
-                scores={hourlyScores(beach.forecast, selectedActivity)}
-                currentTime={beach.forecast.currentTime}
-                selectedParameter={selectedParam} 
-              />
+              <HourlyForecastTable data={hours} scores={scores} currentTime={f.currentTime} selectedParameter={selectedParam} />
             </div>
           </div>
         </section>
 
-        {/* Wind Summary Section */}
         <section className="space-y-6">
-          <SectionHeader icon="Wind" title="ניצול הרוח ומשטר הרוחות" subtitle="ניתוח מקצועי" />
+          <SectionHeader icon="Wind" title={t('detail.wind.title')} subtitle={t('detail.wind.subtitle')} />
           <WindSummary beach={beach} selectedActivity={selectedActivity} />
         </section>
 
-        {/* Why this recommendation section */}
-        {recommendation && (
+        {recommendation && <WhySection recommendation={recommendation} />}
+
         <section className="space-y-6">
-          <SectionHeader icon="Info" title="למה קיבלתי את ההמלצה הזו?" subtitle="אלגוריתם הציון" />
-          
-          <div className="bg-white/90 backdrop-blur-xl rounded-[3rem] p-8 border border-white shadow-xl shadow-slate-200/40 space-y-10">
-            <div className="flex flex-col md:flex-row gap-8">
-              {recommendation.positiveFactors.length > 0 && (
-                <div className="flex-1">
-                  <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <LucideIcons.CheckCircle2 size={16} />
-                    מה עובד לטובתך?
-                  </h4>
-                  <ul className="space-y-3">
-                    {recommendation.positiveFactors.map((factor, i) => (
-                      <li key={i} className="text-sm font-bold text-slate-700 flex items-start gap-4">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-                        <span>{factor}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {recommendation.negativeFactors.length > 0 && (
-                <div className="flex-1">
-                  <h4 className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <LucideIcons.AlertCircle size={16} />
-                    מה פחות אידיאלי?
-                  </h4>
-                  <ul className="space-y-3">
-                    {recommendation.negativeFactors.map((factor, i) => (
-                      <li key={i} className="text-sm font-bold text-slate-700 flex items-start gap-4">
-                        <div className="w-1.5 h-1.5 rounded-full bg-rose-300 mt-1.5 shrink-0" />
-                        <span>{factor}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-8 border-t border-slate-50 text-center">
-              <p className="text-slate-400 text-sm font-black italic max-w-sm mx-auto leading-relaxed">
-                "{recommendation.explanationSummary}"
-              </p>
+          <SectionHeader icon="Users" title={t('detail.reports.title')} subtitle={t('detail.reports.subtitle')} />
+          <div className="bg-white/80 backdrop-blur-lg rounded-[2.5rem] p-6 border border-white shadow-xl shadow-slate-200/30">
+            <FieldReportSummaryView summary={reportSummary} />
+            <div className="mt-8 pt-8 border-t border-slate-100">
+              <FieldReportActions activityLabel={activityLabel} onSubmit={handleSubmitReport} />
             </div>
           </div>
         </section>
-        )}
 
-        {/* Map Placeholder */}
-        <section className="bg-white/60 backdrop-blur-lg rounded-[2.5rem] p-12 text-center border-2 border-dashed border-slate-200 group">
-           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition-transform">
-             <LucideIcons.MapPin className="text-slate-300" size={32} />
-           </div>
-           <h3 className="font-black text-xl text-slate-700 mb-2">מפת החוף והסביבה</h3>
-           <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-xs mx-auto">
-             בשלב הבא נציג כאן מפה חיה, תחנות מדידה, מרינות ונקודות עניין.
-           </p>
+        <section className="bg-white/60 backdrop-blur-lg rounded-[2.5rem] p-10 text-center border-2 border-dashed border-slate-200">
+          <LucideIcons.MapPin className="text-slate-400 mx-auto mb-4" size={32} aria-hidden="true" />
+          <h3 className="font-black text-xl text-slate-800 mb-2">{t('detail.map.title')}</h3>
+          <p className="text-sm text-slate-600 font-medium leading-relaxed max-w-xs mx-auto">{t('detail.map.body')}</p>
         </section>
-
-        {/* Raw Data Table - Secondary */}
-        <div className="text-center pt-8">
-          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">SeaVibes Engine v1.2</p>
-          <div className="text-slate-200 text-xs">כל הנתונים מבוססים על תחזית ודיווחים מהשטח</div>
-        </div>
       </div>
     </motion.div>
   );
-}
-
-function SectionHeader({ icon, title, subtitle }: { icon: string; title: string; subtitle: string }) {
-  const Icon = (LucideIcons as any)[icon];
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-sea-500 shadow-sm">
-          <Icon size={20} />
-        </div>
-        <h3 className="font-black text-lg text-slate-900 tracking-tight">{title}</h3>
-      </div>
-      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{subtitle}</span>
-    </div>
-  );
-}
-
-function getStatusBg(status: BeachRecommendation['status']) {
-  switch (status) {
-    case 'excellent': return 'bg-emerald-500 shadow-emerald-500/30';
-    case 'good': return 'bg-sea-500 shadow-sea-500/30';
-    case 'fair': return 'bg-amber-500 shadow-amber-500/30';
-    case 'poor': return 'bg-rose-500 shadow-rose-500/30';
-  }
 }

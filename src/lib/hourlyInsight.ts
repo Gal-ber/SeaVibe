@@ -1,87 +1,62 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 // תובנה קצרה מעל הטבלה השעתית, מחושבת מהנתונים של השעות הקרובות (מעכשיו עד סוף היום).
 // אם חסר נתון שהתובנה צריכה, מוצגת הודעה שאין מספיק נתונים, בלי לנחש.
+// מתי נוגעים: כשמשנים את כללי התובנה. הטקסטים נמצאים ב-config/texts.
 import { HourlyForecast, SelectedParameter, ActivityId } from '../types';
-import texts from '../../config/texts/he.json';
+import { Lang, translate } from '../i18n/translate';
 
-const INSUFFICIENT = texts['insight.insufficient'];
+type Trend = 'up' | 'down' | 'stable' | 'unknown';
+
+function trendOf(hours: HourlyForecast[], key: 'waveHeight' | 'windSpeed' | 'airTemperature' | 'waterTemperature'): Trend {
+  const start = hours[0][key];
+  const end = hours[hours.length - 1][key];
+  if (start === null || end === null) return 'unknown';
+  const diff = end - start;
+  const step = key === 'waveHeight' ? 0.1 : key === 'waterTemperature' ? 1 : 2;
+  if (Math.abs(diff) < step) return 'stable';
+  return diff > 0 ? 'up' : 'down';
+}
 
 export function generateHourlyInsight(
   selectedParameter: SelectedParameter,
-  hourlyForecast: HourlyForecast[],
-  selectedActivity?: ActivityId
+  hours: HourlyForecast[],
+  activity?: ActivityId,
+  lang: Lang = 'he',
 ): string {
-  if (!hourlyForecast || hourlyForecast.length < 2) {
-    return "תובנה מהירה: התנאים די יציבים לאורך היום, אז כדאי לבחור את השעה לפי הנוחות שלך והפעילות שתכננת.";
-  }
+  const t = (key: string) => translate(lang, key);
+  if (!hours || hours.length < 2) return t('insight.stable');
 
-  const first = hourlyForecast[0];
-  const last = hourlyForecast[hourlyForecast.length - 1];
-
-  // Helper to determine trend
-  const getTrend = (key: 'waveHeight' | 'windSpeed' | 'airTemperature') => {
-    const valStart = first[key];
-    const valEnd = last[key];
-    if (valStart === null || valEnd === null) return 'unknown';
-    const diff = valEnd - valStart;
-    
-    if (Math.abs(diff) < (key === 'waveHeight' ? 0.1 : 2)) return 'stable';
-    return diff > 0 ? 'increasing' : 'decreasing';
-  };
-
-  const waveTrend = getTrend('waveHeight');
-  const windTrend = getTrend('windSpeed');
-  const tempTrend = getTrend('airTemperature');
-
-  // Logic based on selected parameter
   if (selectedParameter === 'waveHeight') {
-    if (waveTrend === 'unknown') return INSUFFICIENT;
-    if (selectedActivity === 'surf' || selectedActivity === 'sail') {
-        if (waveTrend === 'increasing') return "הגלים עולים בהדרגה לקראת הצהריים, מה שיכול לשפר את התנאים לגלישה — כדאי לכוון לשעות המאוחרות יותר.";
-        if (waveTrend === 'decreasing') return "הים נרגע לאורך היום. לגולשים עדיף לנצל את השעות המוקדמות לפני שהגובה יורד.";
-    }
-    
-    if (waveTrend === 'increasing') return "הגלים עולים בהדרגה לקראת הצהריים, אז אם חיפשת קצת יותר תנועה במים — עדיף לכוון לשעות המאוחרות של הבוקר.";
-    if (waveTrend === 'decreasing') return "הים נרגע בהמשך היום, אז לשחייה רגועה או ילדים עדיף לשקול את השעות המאוחרות יותר.";
-    return "גובה הגלים די יציב לאורך היום, אז ההחלטה תלויה יותר ברוח ובפעילות שתכננת.";
+    const trend = trendOf(hours, 'waveHeight');
+    if (trend === 'unknown') return t('insight.insufficient');
+    const surfer = activity === 'surf' || activity === 'sail';
+    if (trend === 'up') return t(surfer ? 'insight.waves.upSurf' : 'insight.waves.up');
+    if (trend === 'down') return t(surfer ? 'insight.waves.downSurf' : 'insight.waves.down');
+    return t('insight.waves.stable');
   }
 
   if (selectedParameter === 'wind') {
-    if (windTrend === 'unknown') return INSUFFICIENT;
-    if (selectedActivity === 'sup' || selectedActivity === 'swim' || selectedActivity === 'kids') {
-        if (windTrend === 'increasing') return "הרוח מתחזקת בהמשך היום, אז ל-SUP או שחייה עם ילדים עדיף להגיע מוקדם כשהים רגוע ושקט.";
-    }
-    
-    if (windTrend === 'increasing') return "הרוח רגועה בבוקר אבל מתחזקת בהמשך, לכן SUP ושחייה עם ילדים יתאימו יותר לשעות המוקדמות.";
-    if (windTrend === 'decreasing') return "הרוח נחלשת בהמשך היום, אז ייתכן שהשעות המאוחרות יהיו נוחות יותר לפעילות רגועה במים.";
-    
-    // Direction change check
-    if (first.windDirection !== null && last.windDirection !== null && first.windDirection !== last.windDirection) {
-        return "כיוון הרוח משתנה לאורך היום, אז כדאי לבדוק את השעה המדויקת לפני גלישה או שייט.";
-    }
-    
-    return "הרוח נשארת די יציבה לאורך היום, אז כדאי לבחור שעה לפי גובה הגלים והטמפרטורה.";
+    const trend = trendOf(hours, 'windSpeed');
+    if (trend === 'unknown') return t('insight.insufficient');
+    const calmActivity = activity === 'sup' || activity === 'swim' || activity === 'kids';
+    if (trend === 'up') return t(calmActivity ? 'insight.wind.upCalm' : 'insight.wind.up');
+    if (trend === 'down') return t('insight.wind.down');
+    const first = hours[0].windDirection;
+    const last = hours[hours.length - 1].windDirection;
+    if (first !== null && last !== null && first !== last) return t('insight.wind.shift');
+    return t('insight.wind.stable');
   }
 
   if (selectedParameter === 'airTemperature') {
-    if (tempTrend === 'unknown') return INSUFFICIENT;
-    if (tempTrend === 'increasing' && last.airTemperature !== null && last.airTemperature > 28) {
-        return "הטמפרטורה עולה לקראת הצהריים ויהיה חם, אז לישיבה נעימה בחוף עדיף להגיע לפני שיא החום.";
-    }
-    if (tempTrend === 'increasing') return "הטמפרטורה עולה בהדרגה ויהיה נעים יותר בצהריים, מתאים בדיוק למי שאוהב שמש.";
-    if (tempTrend === 'stable') return "הטמפרטורה נוחה ודי יציבה לאורך היום, כך שאפשר לבחור שעה לפי הרוח והגלים.";
-    return "חם במיוחד בצהריים, אז עדיף לכוון לשעות הבוקר או אחר הצהריים ולבוא מוכנים עם מים וצל.";
+    const trend = trendOf(hours, 'airTemperature');
+    if (trend === 'unknown') return t('insight.insufficient');
+    const peak = Math.max(...hours.map((h) => h.airTemperature ?? -Infinity));
+    if (trend === 'up' && peak > 28) return t('insight.air.hot');
+    if (trend === 'up') return t('insight.air.up');
+    if (trend === 'down') return t('insight.air.down');
+    return t('insight.air.stable');
   }
 
-  if (selectedParameter === 'waterTemperature') {
-    if (hourlyForecast.some((h) => h.waterTemperature === null)) return INSUFFICIENT;
-    return "טמפרטורת המים יציבה לאורך היום, אז ההחלטה תלויה בעיקר ברוח, בגלים ובשעה שנוחה לך.";
-  }
-
-  // Fallback
-  return "תובנה מהירה: התנאים די יציבים לאורך היום, אז כדאי לבחור את השעה לפי הנוחות שלך והפעילות שתכננת.";
+  // טמפרטורת מים
+  if (hours.some((h) => h.waterTemperature === null)) return t('insight.insufficient');
+  return t(trendOf(hours, 'waterTemperature') === 'stable' ? 'insight.water.stable' : 'insight.water.changes');
 }

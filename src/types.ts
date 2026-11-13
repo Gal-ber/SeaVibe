@@ -7,7 +7,6 @@ export type ActivityId = 'beach' | 'swim' | 'kids' | 'surf' | 'sup' | 'sail';
 
 export interface Activity {
   id: ActivityId;
-  label: string;
   icon: string;
 }
 

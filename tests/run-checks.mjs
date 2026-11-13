@@ -62,6 +62,22 @@ step('אין ניסוחי בטיחות בטקסטים (כלל 8)', () =>
   )
 );
 
+// FR-15: כל טקסט בקובצי השפה. בקוד מותרות אותיות עבריות רק בהערות.
+const stripComments = (code) => code.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
+step('אין טקסט עברי בקוד, רק בקובצי השפה (FR-15)', () =>
+  filesIn('src').flatMap((file) =>
+    stripComments(readFileSync(file, 'utf8')).split('\n').flatMap((line, i) =>
+      /[\u0590-\u05FF]/.test(line) ? [`${file}:${i + 1}: ${line.trim().slice(0, 80)}`] : []
+    )
+  )
+);
+
+step('לכל מפתח טקסט יש תרגום בשתי השפות (FR-15)', () => {
+  const he = Object.keys(JSON.parse(readFileSync('config/texts/he.json', 'utf8')));
+  const en = Object.keys(JSON.parse(readFileSync('config/texts/en.json', 'utf8')));
+  return [...he.filter((k) => !en.includes(k)).map((k) => `חסר באנגלית: ${k}`), ...en.filter((k) => !he.includes(k)).map((k) => `חסר בעברית: ${k}`)];
+});
+
 step('בדיקת טיפוסים (TypeScript)', () => run('npx tsc --noEmit'));
 step('בדיקות יחידה (נתונים, ערכים חסרים, מנוע)', () => run('npx vitest run'));
 step('בניית האתר', () => run('npx vite build'));

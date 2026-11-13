@@ -6,7 +6,8 @@
 import { HourRow } from './dataContract';
 import { BeachForecast, HourlyForecast, WindAnalysis, WindTrend } from '../types';
 
-const COMPASS = ['צפונית', 'צפון-מזרחית', 'מזרחית', 'דרום-מזרחית', 'דרומית', 'דרום-מערבית', 'מערבית', 'צפון-מערבית'];
+// כיוון הרוח נשמר כמפתח (N, NE...). המסך מתרגם אותו (compass.N וכו׳ בקובצי הטקסטים).
+const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 
 export function degreesToCompass(deg: number | null): string | null {
   if (deg === null) return null;
@@ -35,12 +36,6 @@ export function toHourly(row: HourRow): HourlyForecast {
 }
 
 const WIND_STEP = 5; // שינוי של 5 קמ״ש ומעלה נחשב שינוי מגמה
-const WIND_TEXTS: Record<WindTrend, string> = {
-  stable: 'הרוח צפויה להישאר יציבה בהמשך היום.',
-  stronger: 'הרוח צפויה להתחזק בהמשך היום. אם אתם בעניין של SUP, עדיף להגיע מוקדם.',
-  weaker: 'הרוח חזקה יותר עכשיו וצפויה להירגע בהמשך היום.',
-  shifting: 'כיוון הרוח צפוי להשתנות בשעות הקרובות, וזה עשוי להשפיע על מצב הים.',
-};
 
 export function deriveWindAnalysis(hours: HourlyForecast[], currentIndex: number): WindAnalysis | null {
   const current = hours[currentIndex];
@@ -57,7 +52,7 @@ export function deriveWindAnalysis(hours: HourlyForecast[], currentIndex: number
   else if (weaker) [trend, changeTime] = ['weaker', weaker.time];
   else if (shifted) [trend, changeTime] = ['shifting', shifted.time];
 
-  return { speed, direction: current.windDirection, trend, changeTime, impact: '', explanation: WIND_TEXTS[trend] };
+  return { speed, direction: current.windDirection, trend, changeTime, impact: '', explanation: '' };
 }
 
 export function emptyForecast(source: 'mock' | 'live'): BeachForecast {
