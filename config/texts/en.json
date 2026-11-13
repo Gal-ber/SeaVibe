@@ -234,5 +234,7 @@
   "reports.remote": "Summary of reports from the last 4 hours",
   "reports.sendError": "We couldn't save your report. Please try again later.",
   "reports.rateLimited": "You've sent many reports in the last hour. Please try again later.",
-  "reports.thanksNoteRemote": "Your report was added to the summary, with no identifying details."
+  "reports.thanksNoteRemote": "Your report was added to the summary, with no identifying details.",
+  "source.name": "Source: {source}",
+  "source.attribution": "Weather data: Open-Meteo.com (CC BY 4.0)"
 }

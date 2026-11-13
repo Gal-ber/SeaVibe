@@ -46,16 +46,18 @@ export function normalizeForecastFile(raw: unknown): NormalizedForecast | null {
   if (!parsed.success) return null;
   const series: Record<string, HourRow[]> = {};
   for (const beach of parsed.data.beaches) {
+    // מפתח השורה: התאריך והשעה (validAt) בנתוני אמת, או רק השעה בנתוני דוגמה
+    const key = (r: HourRow) => r.validAt ?? r.localTime;
     const seen = new Set<string>();
     const rows: HourRow[] = [];
     for (const rawHour of beach.hours) {
       const row = normalizeHour(rawHour);
-      if (row && !seen.has(row.localTime)) {
-        seen.add(row.localTime);
+      if (row && !seen.has(key(row))) {
+        seen.add(key(row));
         rows.push(row);
       }
     }
-    rows.sort((a, b) => a.localTime.localeCompare(b.localTime));
+    rows.sort((a, b) => key(a).localeCompare(key(b)));
     series[beach.beachId] = rows;
   }
   return { dataMode: parsed.data.dataMode, generatedAt: parsed.data.generatedAt, series };

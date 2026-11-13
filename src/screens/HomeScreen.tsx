@@ -58,10 +58,13 @@ export default function HomeScreen({ settings, toggleFavorite, setPrimary, reope
             <div className="w-8 h-8 bg-sea-600 rounded-xl flex items-center justify-center shadow-lg shadow-sea-500/20">
               <LucideIcons.Waves className="text-white" size={18} aria-hidden="true" />
             </div>
-            <span className="text-xl font-black text-slate-900 tracking-tight">SeaVibes</span>
-            <span className="ms-auto text-[11px] font-bold text-slate-800 bg-sand-200 px-2 py-0.5 rounded-full">
-              {isMock && status !== 'unavailable' ? t('dataBadge.mock') : t('dataBadge.unavailable')}
-            </span>
+            <span className="text-xl font-black text-slate-900 tracking-tight me-auto">SeaVibes</span>
+            {/* תגית רק לנתוני דוגמה או כשאין נתונים. בנתוני אמת זמינים אין תגית */}
+            {(isMock || status === 'unavailable') && (
+              <span data-testid="header-data-badge" className="text-[11px] font-bold text-slate-800 bg-sand-200 px-2 py-0.5 rounded-full">
+                {status === 'unavailable' ? t('dataBadge.unavailable') : t('dataBadge.mock')}
+              </span>
+            )}
             <LanguageToggle />
           </div>
           <p className="text-[11px] font-bold text-slate-700 uppercase tracking-widest leading-none">{t('app.tagline')}</p>

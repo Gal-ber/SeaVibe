@@ -69,6 +69,18 @@ step('השרת (server/, functions/) לא פונה לשום כתובת', () =>
   })
 );
 
+// כלל 4: כתובות של ספקים רק ב-data-sources/sources.config.json. המשימה המתוזמנת בונה מהן את הבקשות,
+// ולכן בקוד שלה אסור שתופיע כתובת. רק worker.ts רשאי לבצע fetch (דרך הפונקציה שמקבלת את הכתובת מההגדרות).
+step('המשימה המתוזמנת (scripts/fetcher) לוקחת כתובות רק מקובץ המקורות', () =>
+  filesIn('scripts/fetcher').flatMap((file) => {
+    const text = readFileSync(file, 'utf8');
+    const found = [];
+    if (/https?:\/\//.test(text)) found.push(`${file}: כתובת בקוד במקום בקובץ המקורות`);
+    if (!file.endsWith('worker.ts') && NETWORK_CALL.test(text)) found.push(`${file}: קריאת רשת מחוץ ל-worker.ts`);
+    return found;
+  })
+);
+
 // כלל 8: הציון הוא נוחות, לא בטיחות. ניסוחים כאלה אסורים בטקסטים שהמשתמש רואה.
 // כל הטקסט שהמשתמש רואה נמצא בקובצי השפה (נאכף בבדיקת FR-15), ולכן סורקים אותם.
 const SAFETY_WORDS = /בטוח|סכנ|מסוכ|מומלץ להיכנס|טביע|\bsafe\b|\bdanger/i;

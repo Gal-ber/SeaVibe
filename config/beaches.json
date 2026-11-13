@@ -1,12 +1,124 @@
 {
-  "_הסבר": "קטלוג החופים הנתמכים. שם ועיר בעברית ובאנגלית, וקואורדינטות. מוסיפים חוף כאן, ואז פרופיל ב-data-sources/mock/profiles.json.",
+  "_הסבר": "קטלוג החופים הנתמכים. שם ועיר בעברית ובאנגלית, וקואורדינטות. מוסיפים חוף כאן, ואז פרופיל ב-data-sources/mock/profiles.json. sea = נקודה בים, כ-2–3 ק\"מ מהחוף, למודל הגלים (נקודה על קו החוף עלולה ליפול על יבשה ולהחזיר null).",
   "beaches": [
-    { "id": "gordon", "name": { "he": "חוף גורדון", "en": "Gordon Beach" }, "city": { "he": "תל אביב", "en": "Tel Aviv" }, "lat": 32.0833, "lng": 34.7663 },
-    { "id": "herzliya", "name": { "he": "מרינה הרצליה", "en": "Herzliya Marina" }, "city": { "he": "הרצליה", "en": "Herzliya" }, "lat": 32.162, "lng": 34.795 },
-    { "id": "palmachim", "name": { "he": "פלמחים", "en": "Palmachim" }, "city": { "he": "גן לאומי פלמחים", "en": "Palmachim National Park" }, "lat": 31.9284, "lng": 34.7431 },
-    { "id": "netanya", "name": { "he": "נתניה", "en": "Netanya" }, "city": { "he": "נתניה מרכז", "en": "Central Netanya" }, "lat": 32.3275, "lng": 34.8519 },
-    { "id": "haifa", "name": { "he": "חיפה", "en": "Haifa" }, "city": { "he": "חוף הכרמל", "en": "Carmel Beach" }, "lat": 32.8122, "lng": 34.9546 },
-    { "id": "ashdod", "name": { "he": "אשדוד", "en": "Ashdod" }, "city": { "he": "אשדוד", "en": "Ashdod" }, "lat": 31.7946, "lng": 34.6293 },
-    { "id": "eilat", "name": { "he": "אילת", "en": "Eilat" }, "city": { "he": "החוף הצפוני", "en": "North Beach" }, "lat": 29.5492, "lng": 34.9608 }
+    {
+      "id": "gordon",
+      "name": {
+        "he": "חוף גורדון",
+        "en": "Gordon Beach"
+      },
+      "city": {
+        "he": "תל אביב",
+        "en": "Tel Aviv"
+      },
+      "lat": 32.0833,
+      "lng": 34.7663,
+      "sea": {
+        "lat": 32.0833,
+        "lng": 34.735
+      }
+    },
+    {
+      "id": "herzliya",
+      "name": {
+        "he": "מרינה הרצליה",
+        "en": "Herzliya Marina"
+      },
+      "city": {
+        "he": "הרצליה",
+        "en": "Herzliya"
+      },
+      "lat": 32.162,
+      "lng": 34.795,
+      "sea": {
+        "lat": 32.162,
+        "lng": 34.765
+      }
+    },
+    {
+      "id": "palmachim",
+      "name": {
+        "he": "פלמחים",
+        "en": "Palmachim"
+      },
+      "city": {
+        "he": "גן לאומי פלמחים",
+        "en": "Palmachim National Park"
+      },
+      "lat": 31.9284,
+      "lng": 34.7431,
+      "sea": {
+        "lat": 31.9284,
+        "lng": 34.71
+      }
+    },
+    {
+      "id": "netanya",
+      "name": {
+        "he": "נתניה",
+        "en": "Netanya"
+      },
+      "city": {
+        "he": "נתניה מרכז",
+        "en": "Central Netanya"
+      },
+      "lat": 32.3275,
+      "lng": 34.8519,
+      "sea": {
+        "lat": 32.3275,
+        "lng": 34.825
+      }
+    },
+    {
+      "id": "haifa",
+      "name": {
+        "he": "חיפה",
+        "en": "Haifa"
+      },
+      "city": {
+        "he": "חוף הכרמל",
+        "en": "Carmel Beach"
+      },
+      "lat": 32.8122,
+      "lng": 34.9546,
+      "sea": {
+        "lat": 32.83,
+        "lng": 34.94
+      }
+    },
+    {
+      "id": "ashdod",
+      "name": {
+        "he": "אשדוד",
+        "en": "Ashdod"
+      },
+      "city": {
+        "he": "אשדוד",
+        "en": "Ashdod"
+      },
+      "lat": 31.7946,
+      "lng": 34.6293,
+      "sea": {
+        "lat": 31.7946,
+        "lng": 34.6
+      }
+    },
+    {
+      "id": "eilat",
+      "name": {
+        "he": "אילת",
+        "en": "Eilat"
+      },
+      "city": {
+        "he": "החוף הצפוני",
+        "en": "North Beach"
+      },
+      "lat": 29.5492,
+      "lng": 34.9608,
+      "sea": {
+        "lat": 29.53,
+        "lng": 34.96
+      }
+    }
   ]
 }

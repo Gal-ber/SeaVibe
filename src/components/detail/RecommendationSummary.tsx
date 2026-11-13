@@ -29,6 +29,9 @@ export default function RecommendationSummary({ recommendation, isMock, generate
         </div>
       )}
       {updated && (
+        <p data-testid="source-attribution" className="mb-1 text-xs font-bold text-slate-700">{t('source.attribution')}</p>
+      )}
+      {updated && (
         <p data-testid="source-updated" className={`mb-4 text-xs font-bold ${stale ? 'text-rose-700' : 'text-slate-600'}`}>
           {stale
             ? t('source.stale', { hours: STALE_HOURS })

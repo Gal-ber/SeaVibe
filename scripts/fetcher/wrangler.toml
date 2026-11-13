@@ -1,0 +1,15 @@
+# המשימה המתוזמנת של SeaVibes: משיכת תחזית מ-Open-Meteo כל 3 שעות.
+# לא פרוסה עד אישור "יוצאים לדרך" של הבעלים (docs/decisions/002-live-forecast-source.md).
+name = "seavibes-fetcher"
+main = "worker.ts"
+compatibility_date = "2026-11-01"
+workers_dev = false
+
+[triggers]
+crons = ["5 */3 * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "seavibes-reports"
+database_id = "be214691-43c4-43a5-a8df-8b075a3ab37f"
+migrations_dir = "../../migrations"

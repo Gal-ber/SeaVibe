@@ -14,6 +14,11 @@ export function degreesToCompass(deg: number | null): string | null {
   return COMPASS[Math.round(deg / 45) % 8];
 }
 
+// התאריך הנוכחי בשעון ישראל, למשל "2026-11-13"
+export function israelDate(now: Date): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
+}
+
 // השעה העגולה הנוכחית בשעון ישראל, למשל "14:00"
 export function israelHour(now: Date): string {
   const hour = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', hourCycle: 'h23' }).format(now);
@@ -63,7 +68,10 @@ export function emptyForecast(source: 'mock' | 'live'): BeachForecast {
   };
 }
 
-export function buildBeachForecast(rows: HourRow[] | undefined, source: 'mock' | 'live', now: Date): BeachForecast {
+export function buildBeachForecast(allRows: HourRow[] | undefined, source: 'mock' | 'live', now: Date): BeachForecast {
+  // נתוני אמת מכסים כמה ימים: לוקחים רק את השעות של היום (שעון ישראל). נתוני דוגמה הם "יום טיפוסי" בלי תאריך.
+  const today = israelDate(now);
+  const rows = allRows?.some((r) => r.validAt) ? allRows.filter((r) => r.validAt?.slice(0, 10) === today) : allRows;
   if (!rows || rows.length === 0) return emptyForecast(source);
   const hourly = rows.map(toHourly);
   const index = hourly.findIndex((h) => h.time === israelHour(now));

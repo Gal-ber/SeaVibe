@@ -234,5 +234,7 @@
   "reports.remote": "סיכום הדיווחים מ-4 השעות האחרונות",
   "reports.sendError": "לא הצלחנו לשמור את הדיווח. נסו שוב מאוחר יותר.",
   "reports.rateLimited": "שלחת הרבה דיווחים בשעה האחרונה. נסו שוב מאוחר יותר.",
-  "reports.thanksNoteRemote": "הדיווח נוסף לסיכום, בלי פרטים מזהים."
+  "reports.thanksNoteRemote": "הדיווח נוסף לסיכום, בלי פרטים מזהים.",
+  "source.name": "מקור: {source}",
+  "source.attribution": "נתוני מזג אוויר: Open-Meteo.com (CC BY 4.0)"
 }

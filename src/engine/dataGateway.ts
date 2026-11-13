@@ -1,9 +1,10 @@
 // שער הנתונים: המקום היחיד שממנו המסכים מקבלים תחזיות.
 // קורא את המתג dataMode מ-config/app.config.json.
-// mock: קורא את קובץ הדוגמה /data/forecast.json מהאתר שלנו עצמו (לא מהאינטרנט).
-// live: עדיין לא קיים (שלב 5). עד אז מחזיר "לא זמין" ולא פונה לשום מקום.
+// בשני המצבים קורא את /data/forecast.json מהאתר שלנו עצמו (לא מהאינטרנט):
+// mock: קובץ נתוני הדוגמה. live: התחזית שהמשימה המתוזמנת שמרה (מוגש מהשרת שלנו, functions/data).
+// האם להציג "נתוני דוגמה" נקבע לפי מה שכתוב בקובץ עצמו (dataMode), לא לפי ההגדרה. כך אין טעות בתווית.
 // זה הקובץ היחיד שמותר בו fetch, ורק לכתובת /data/ של האתר שלנו (נבדק ב-npm run check).
-// מתי נוגעים: רק בשלב 5 (נתוני אמת), באישור הבעלים.
+// מתי נוגעים: כמעט אף פעם.
 import appConfig from '../../config/app.config.json';
 import { normalizeForecastFile } from './normalize';
 import { NormalizedForecast } from './dataContract';
@@ -26,12 +27,11 @@ export function getDataMode(): DataMode {
 
 export async function loadForecasts(): Promise<ForecastResult> {
   const mode = getDataMode();
-  if (mode === 'live') return { mode, available: false, data: null, cachedAt: null };
   try {
     const response = await fetch(MOCK_FILE, { cache: 'no-store' });
     if (!response.ok) return { mode, available: false, data: null, cachedAt: null };
     const data = normalizeForecastFile(await response.json());
-    return { mode, available: data !== null, data, cachedAt: response.headers.get('X-SeaVibes-Cached-At') };
+    return { mode: data?.dataMode ?? mode, available: data !== null, data, cachedAt: response.headers.get('X-SeaVibes-Cached-At') };
   } catch {
     return { mode, available: false, data: null, cachedAt: null };
   }
