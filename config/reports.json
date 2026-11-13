@@ -1,0 +1,11 @@
+{
+  "_הסבר": "כללי דיווחי השטח. משמשים גם את האתר וגם את השרת, כך שאין שני מקומות לאותו כלל.",
+  "windowHours": 4,
+  "minReportsForSummary": 5,
+  "retentionDays": 7,
+  "maxReportsPerReporterPerHour": 20,
+  "reasons": {
+    "positive": ["reason.goodWaves", "reason.goodWind", "reason.goodWeather", "reason.family"],
+    "negative": ["reason.badWaves", "reason.badWind", "reason.tooHot", "reason.uncomfortable"]
+  }
+}

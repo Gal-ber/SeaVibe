@@ -1,0 +1,12 @@
+# הגדרות Cloudflare Pages + D1 ל-SeaVibes. אין כאן סודות.
+# לא בשימוש עד הפריסה הראשונה, שנעשית רק באישור הבעלים (ראו docs/deploy-cloudflare.md).
+# את database_id ממלאים אחרי יצירת המסד. "המלח" הסודי (REPORTER_SALT) נשמר רק ב-Cloudflare, לא כאן.
+name = "seavibes"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "seavibes-reports"
+database_id = "REPLACE_AFTER_CREATING_DATABASE"
+migrations_dir = "migrations"

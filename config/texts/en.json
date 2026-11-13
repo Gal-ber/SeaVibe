@@ -230,5 +230,9 @@
   "ago.minutes": "{n} minutes ago",
   "ago.hours": "{n} hours ago",
   "ago.days": "{n} days ago",
-  "search.rankedFor": "Most comfortable beaches for {activity} now"
+  "search.rankedFor": "Most comfortable beaches for {activity} now",
+  "reports.remote": "Summary of reports from the last 4 hours",
+  "reports.sendError": "We couldn't save your report. Please try again later.",
+  "reports.rateLimited": "You've sent many reports in the last hour. Please try again later.",
+  "reports.thanksNoteRemote": "Your report was added to the summary, with no identifying details."
 }

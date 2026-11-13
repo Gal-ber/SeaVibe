@@ -230,5 +230,9 @@
   "ago.minutes": "לפני {n} דקות",
   "ago.hours": "לפני {n} שעות",
   "ago.days": "לפני {n} ימים",
-  "search.rankedFor": "החופים הנוחים ביותר ל{activity} עכשיו"
+  "search.rankedFor": "החופים הנוחים ביותר ל{activity} עכשיו",
+  "reports.remote": "סיכום הדיווחים מ-4 השעות האחרונות",
+  "reports.sendError": "לא הצלחנו לשמור את הדיווח. נסו שוב מאוחר יותר.",
+  "reports.rateLimited": "שלחת הרבה דיווחים בשעה האחרונה. נסו שוב מאוחר יותר.",
+  "reports.thanksNoteRemote": "הדיווח נוסף לסיכום, בלי פרטים מזהים."
 }

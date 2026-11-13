@@ -32,22 +32,39 @@ function step(title, fn) {
 
 // כתובות שמותר שיופיעו כטקסט (לא בקשות רשת): מרחב השמות של SVG.
 const ALLOWED_URL = /https?:\/\/www\.w3\.org\//g;
-// הקובץ היחיד שמותר בו fetch: שער הנתונים, ורק לקבצים /data/ של האתר שלנו.
-const GATEWAY = join('src', 'engine', 'dataGateway.ts');
+// הקבצים היחידים שמותר בהם fetch, וכל אחד רק לכתובת אחת באתר שלנו:
+// שער הנתונים (/data/...) ושכבת הדיווחים (/api/reports).
+const ALLOWED_FETCH = {
+  [join('src', 'engine', 'dataGateway.ts')]: { constName: 'MOCK_FILE', prefix: '/data/' },
+  [join('src', 'engine', 'reportsStore.ts')]: { constName: 'API', prefix: '/api/reports' },
+};
 const NETWORK_CALL = /\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon)\s*\(|new\s+(XMLHttpRequest|WebSocket|EventSource)\b/;
+
+function checkAllowedFetch(file, text) {
+  const { constName, prefix } = ALLOWED_FETCH[file];
+  const value = text.match(new RegExp(`const ${constName} = '([^']*)'`))?.[1];
+  const calls = [...text.matchAll(/\bfetch\s*\(\s*([^,)]*)/g)].map((m) => m[1].trim());
+  const ok = value?.startsWith(prefix) && calls.length > 0 && calls.every((arg) => arg === constName || arg.startsWith('`${' + constName + '}'));
+  return ok ? [] : [`${file}: מותר רק fetch ל-${prefix} דרך ${constName}`];
+}
 
 step('קוד המקור (src) לא פונה לאינטרנט', () =>
   filesIn('src').flatMap((file) => {
     const text = readFileSync(file, 'utf8').replace(ALLOWED_URL, '');
     const found = [];
     if (/https?:\/\//.test(text)) found.push(`${file}: נמצאה כתובת אינטרנט`);
-    if (file === GATEWAY) {
-      const targets = [...text.matchAll(/const MOCK_FILE = '([^']*)'/g)].map((m) => m[1]);
-      const calls = (text.match(/\bfetch\s*\(/g) || []).length;
-      if (calls !== 1 || targets.length !== 1 || !targets[0].startsWith('/data/') || !/fetch\(MOCK_FILE\b/.test(text)) {
-        found.push(`${file}: מותר רק fetch אחד, לקובץ /data/ של האתר שלנו`);
-      }
-    } else if (NETWORK_CALL.test(text)) found.push(`${file}: נמצאה קריאת רשת`);
+    if (ALLOWED_FETCH[file]) found.push(...checkAllowedFetch(file, text));
+    else if (NETWORK_CALL.test(text)) found.push(`${file}: נמצאה קריאת רשת`);
+    return found;
+  })
+);
+
+step('השרת (server/, functions/) לא פונה לשום כתובת', () =>
+  [...filesIn('server'), ...filesIn('functions')].flatMap((file) => {
+    const text = readFileSync(file, 'utf8');
+    const found = [];
+    if (/https?:\/\//.test(text)) found.push(`${file}: נמצאה כתובת אינטרנט`);
+    if (NETWORK_CALL.test(text)) found.push(`${file}: נמצאה קריאת רשת`);
     return found;
   })
 );

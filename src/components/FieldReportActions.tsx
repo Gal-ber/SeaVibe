@@ -8,23 +8,30 @@ import { useI18n } from '../i18n/I18nProvider';
 interface FieldReportActionsProps {
   activityLabel: string;
   existingVote: boolean | null;
+  mode: 'local' | 'remote';
   key?: string;
-  onSubmit: (isAccurate: boolean, reason?: string) => void;
+  onSubmit: (isAccurate: boolean, reason?: string) => Promise<'saved' | 'rate_limited' | 'error'>;
 }
 
 const POSITIVE = ['reason.goodWaves', 'reason.goodWind', 'reason.goodWeather', 'reason.family'];
 const NEGATIVE = ['reason.badWaves', 'reason.badWind', 'reason.tooHot', 'reason.uncomfortable'];
 
-export default function FieldReportActions({ activityLabel, existingVote, onSubmit }: FieldReportActionsProps) {
+export default function FieldReportActions({ activityLabel, existingVote, mode, onSubmit }: FieldReportActionsProps) {
   const { t } = useI18n();
   // אם כבר דיווחת על החוף והפעילות האלה ב-4 השעות האחרונות, רואים את הדיווח ואפשר לשנות
   const [step, setStep] = useState<'initial' | 'reasons' | 'thanks' | 'existing'>(existingVote === null ? 'initial' : 'existing');
   const [selection, setSelection] = useState<boolean | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
 
-  const finish = (reason?: string) => {
+  const finish = async (reason?: string) => {
     if (selection === null) return;
-    onSubmit(selection, reason);
-    setStep('thanks');
+    const result = await onSubmit(selection, reason);
+    if (result === 'saved') {
+      setStep('thanks');
+      return;
+    }
+    setFailure(t(result === 'rate_limited' ? 'reports.rateLimited' : 'reports.sendError'));
+    setStep('initial');
   };
 
   return (
@@ -42,6 +49,7 @@ export default function FieldReportActions({ activityLabel, existingVote, onSubm
         {step === 'initial' && (
           <motion.div key="initial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-center space-y-4">
             <h3 className="font-extrabold text-slate-800 text-lg">{t('reports.question')}</h3>
+            {failure && <p role="alert" className="text-sm font-bold text-rose-700">{failure}</p>}
             <p className="text-xs text-slate-600">{t('reports.prompt', { activity: activityLabel })}</p>
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button onClick={() => { setSelection(true); setStep('reasons'); }} className="min-h-11 py-3 px-4 rounded-2xl bg-emerald-50 text-emerald-800 font-bold border border-emerald-100 hover:bg-emerald-100 transition-colors">
@@ -76,7 +84,7 @@ export default function FieldReportActions({ activityLabel, existingVote, onSubm
               <LucideIcons.Check size={24} aria-hidden="true" />
             </div>
             <h3 className="font-extrabold text-slate-800">{t('reports.thanks')}</h3>
-            <p className="text-xs text-slate-600">{t('reports.thanksNote')}</p>
+            <p className="text-xs text-slate-600">{t(mode === 'local' ? 'reports.thanksNote' : 'reports.thanksNoteRemote')}</p>
           </motion.div>
         )}
       </AnimatePresence>

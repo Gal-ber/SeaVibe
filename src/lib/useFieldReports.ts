@@ -1,33 +1,26 @@
-// דיווחי השטח של המשתמש, שמורים במכשיר בלבד (FR-11). אין מיקום, אין טקסט חופשי, אין פרטים אישיים.
-// דיווח אחד לכל חוף ופעילות בחלון של 4 שעות: דיווח חדש מחליף את הקודם (אפשר לשנות הצבעה).
-// מתי נוגעים: שלב 4 (שמירה בשרת). עד אז הכול מקומי.
+// מחבר את מסך הפירוט לשכבת האחסון של הדיווחים (src/engine/reportsStore.ts):
+// טוען את סיכום הדיווחים של החוף והפעילות, את ההצבעה שלך, ומאפשר לשלוח דיווח.
+// מתי נוגעים: כמעט אף פעם. ההחלטה מקומי או שרת נמצאת ב-config/app.config.json.
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityId, FieldReport } from '../types';
-import { REPORT_WINDOW_HOURS } from './fieldReports';
+import { ActivityId } from '../types';
+import { getMyVote, loadCounts, MyVote, ReportCounts, reportsMode, submitReport, SubmitResult } from '../engine/reportsStore';
 
-const KEY = 'seavibes_reports';
-const fresh = (r: FieldReport) => Date.now() - new Date(r.createdAt).getTime() < REPORT_WINDOW_HOURS * 3600_000;
+export function useFieldReports(beachId: string, activity: ActivityId) {
+  const [counts, setCounts] = useState<ReportCounts | null>(null);
+  const [myVote, setMyVote] = useState<MyVote | null>(() => getMyVote(beachId, activity));
 
-function load(): FieldReport[] {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(KEY) || '[]');
-    return Array.isArray(parsed) ? parsed.filter(fresh) : [];
-  } catch {
-    return [];
-  }
-}
+  const refresh = useCallback(() => {
+    loadCounts(beachId, activity).then(setCounts);
+    setMyVote(getMyVote(beachId, activity));
+  }, [beachId, activity]);
 
-export function useFieldReports() {
-  const [reports, setReports] = useState<FieldReport[]>(load);
+  useEffect(refresh, [refresh]);
 
-  useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(reports.filter(fresh))); } catch { /* אחסון לא זמין */ }
-  }, [reports]);
+  const submit = async (isAccurate: boolean, reason?: string): Promise<SubmitResult> => {
+    const result = await submitReport(beachId, activity, isAccurate, reason ?? null);
+    refresh();
+    return result;
+  };
 
-  const submit = useCallback((beachId: string, activity: ActivityId, isAccurate: boolean, reason?: string) => {
-    const report: FieldReport = { id: crypto.randomUUID(), beachId, activity, isAccurate, reason, createdAt: new Date().toISOString() };
-    setReports((prev) => [report, ...prev.filter((r) => !(r.beachId === beachId && r.activity === activity))]);
-  }, []);
-
-  return { reports, submit };
+  return { counts, myVote, submit, mode: reportsMode() };
 }

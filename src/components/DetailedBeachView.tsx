@@ -1,7 +1,6 @@
 // מסך הפירוט של חוף: סיכום ההמלצה, דיווחי שטח, טבלה שעתית, ניתוח רוח והסבר הציון.
 // כל המספרים כאן מאותה סדרה שעתית כמו הכרטיס במסך הראשי.
 // מתי נוגעים: כשמוסיפים או מסדרים חלקים במסך. כל חלק גדול נמצא בקובץ משלו ב-detail/.
-import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
 import { Beach, ActivityId, BeachRecommendation } from '../types';
@@ -13,7 +12,7 @@ import DynamicSeaBackground from './DynamicSeaBackground';
 import SectionHeader from './detail/SectionHeader';
 import RecommendationSummary from './detail/RecommendationSummary';
 import WhySection from './detail/WhySection';
-import { getRecentFieldReports, summarizeFieldReports } from '../lib/fieldReports';
+import { summarizeCounts } from '../lib/fieldReports';
 import { useFieldReports } from '../lib/useFieldReports';
 import { getBackgroundState } from '../lib/utils';
 import { beachName } from '../data/beaches';
@@ -32,12 +31,10 @@ interface DetailedBeachViewProps {
 
 export default function DetailedBeachView({ beach, recommendation, isMock, generatedAt, selectedActivity, isFavorite, onToggleFavorite, onClose }: DetailedBeachViewProps) {
   const { t, lang } = useI18n();
-  const { reports, submit } = useFieldReports();
+  const reports = useFieldReports(beach.id, selectedActivity);
   const activityLabel = t(`activity.${selectedActivity}`);
 
-  const recent = useMemo(() => getRecentFieldReports(reports, beach.id, selectedActivity), [reports, beach.id, selectedActivity]);
-  const reportSummary = summarizeFieldReports(recent, activityLabel, lang);
-  const myVote = recent.length ? recent[0].isAccurate : null;
+  const reportSummary = reports.counts ? summarizeCounts(reports.counts, activityLabel, lang) : null;
 
   return (
     <motion.div
@@ -88,13 +85,14 @@ export default function DetailedBeachView({ beach, recommendation, isMock, gener
         <section className="space-y-6">
           <SectionHeader icon="Users" title={t('detail.reports.title')} subtitle={t('detail.reports.subtitle')} />
           <div className="bg-white/80 backdrop-blur-lg rounded-[2.5rem] p-6 border border-white shadow-xl shadow-slate-200/30">
-            <FieldReportSummaryView summary={reportSummary} />
+            {reportSummary && <FieldReportSummaryView summary={reportSummary} mode={reports.mode} />}
             <div className="mt-8 pt-8 border-t border-slate-100">
               <FieldReportActions
                 key={`${beach.id}-${selectedActivity}`}
                 activityLabel={activityLabel}
-                existingVote={myVote}
-                onSubmit={(isAccurate, reason) => submit(beach.id, selectedActivity, isAccurate, reason)}
+                existingVote={reports.myVote ? reports.myVote.isAccurate : null}
+                mode={reports.mode}
+                onSubmit={reports.submit}
               />
             </div>
           </div>

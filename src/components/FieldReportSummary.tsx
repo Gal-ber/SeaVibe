@@ -3,7 +3,7 @@ import * as LucideIcons from 'lucide-react';
 import { FieldReportSummary } from '../types';
 import { useI18n } from '../i18n/I18nProvider';
 
-export default function FieldReportSummaryView({ summary }: { summary: FieldReportSummary }) {
+export default function FieldReportSummaryView({ summary, mode }: { summary: FieldReportSummary; mode: 'local' | 'remote' }) {
   const { t } = useI18n();
   const { totalReports, summaryText, topReasons } = summary;
   return (
@@ -23,7 +23,7 @@ export default function FieldReportSummaryView({ summary }: { summary: FieldRepo
             <span key={reason} className="text-[10px] font-black text-sea-700">#{t(reason)}</span>
           ))}
         </div>
-        <p className="text-xs font-bold text-slate-600">{t('reports.local')}. {t('reports.noScoreEffect')}</p>
+        <p className="text-xs font-bold text-slate-600">{t(mode === 'local' ? 'reports.local' : 'reports.remote')}. {t('reports.noScoreEffect')}</p>
       </div>
     </div>
   );
