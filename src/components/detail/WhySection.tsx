@@ -1,5 +1,5 @@
 // "למה קיבלתי את ההמלצה הזו?": הגורמים שבאמת השפיעו על הציון, וסיכום קצר.
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from '../icons';
 import { BeachRecommendation } from '../../types';
 import { useI18n } from '../../i18n/I18nProvider';
 import SectionHeader from './SectionHeader';

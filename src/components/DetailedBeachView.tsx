@@ -2,7 +2,7 @@
 // כל המספרים כאן מאותה סדרה שעתית כמו הכרטיס במסך הראשי.
 // מתי נוגעים: כשמוסיפים או מסדרים חלקים במסך. כל חלק גדול נמצא בקובץ משלו ב-detail/.
 import { motion } from 'motion/react';
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { Beach, ActivityId, BeachRecommendation } from '../types';
 import WindSummary from './WindSummary';
 import HourlySection from './HourlySection';

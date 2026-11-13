@@ -1,5 +1,5 @@
 // הסיכום בראש מסך הפירוט: ציון, כותרת, חלון זמן והסבר קצר, ותגית "נתוני דוגמה".
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from '../icons';
 import { BeachRecommendation, ScoreStatus } from '../../types';
 import { useI18n } from '../../i18n/I18nProvider';
 import { SCORING } from '../../engine/scoringConfig';

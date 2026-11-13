@@ -154,6 +154,14 @@ const SECRET_PATTERNS = [
   [/process\.env/, 'משתני סביבה בתוך האתר'],
 ];
 
+// איכות: האתר צריך להיטען מהר גם בטלפון בחוף. גבול לגודל קובץ הקוד הראשי.
+const MAX_JS_KB = 650;
+step(`גודל קוד האתר עד ${MAX_JS_KB}KB (טעינה מהירה בטלפון)`, () =>
+  filesIn(join('dist', 'assets'))
+    .filter((f) => f.endsWith('.js') && statSync(f).size > MAX_JS_KB * 1024)
+    .map((f) => `${f}: ${Math.round(statSync(f).size / 1024)}KB`)
+);
+
 step('אין מפתחות או סודות באתר הבנוי (dist)', () =>
   filesIn('dist').flatMap((file) => {
     if (!/\.(js|css|html|json|txt|map)$/.test(file)) return [];

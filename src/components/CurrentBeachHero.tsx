@@ -1,7 +1,7 @@
 // כרטיס הציון במסך הראשי: ציון, הסבר, חלון זמן וארבעת הנתונים של השעה הנוכחית.
 // אם אין ציון (חסר נתון קריטי) מוצג "אין מספיק מידע". במצב mock מוצגת תגית "נתוני דוגמה".
 // מתי נוגעים: כשמשנים את מבנה הכרטיס.
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { motion } from 'motion/react';
 import { Beach, ActivityId, BeachRecommendation, ScoreStatus } from '../types';
 import { formatValue } from '../lib/formatValue';

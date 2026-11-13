@@ -1,7 +1,7 @@
 // כרטיס בקשת מיקום במסך הראשי. לא חוסם את המסך, ואפשר לסגור אותו.
 // הבקשה לדפדפן נשלחת רק אחרי לחיצה. מציג "מאתר מיקום", סירוב או כישלון בעברית פשוטה.
 // מתי נוגעים: כשמשנים את ניסוח בקשת המיקום.
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { motion } from 'motion/react';
 import { useI18n } from '../i18n/I18nProvider';
 

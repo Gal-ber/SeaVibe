@@ -4,7 +4,7 @@
 // מתי נוגעים: כשמשנים את סדר החלקים במסך הראשי.
 import { useMemo, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from '../components/icons';
 import { BEACHES, beachName } from '../data/beaches';
 import { ActivityId, Beach } from '../types';
 import { getRecommendation } from '../engine/recommend';
@@ -15,6 +15,7 @@ import { getBackgroundState } from '../lib/utils';
 import { useI18n } from '../i18n/I18nProvider';
 import { useMediaQuery } from '../lib/useMediaQuery';
 import { useLocationBeach } from '../lib/useLocationBeach';
+import { useBackToClose } from '../lib/useBackToClose';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import { timeAgo } from '../lib/timeAgo';
 import ActivitySelector from '../components/ActivitySelector';
@@ -45,6 +46,7 @@ export default function HomeScreen({ settings, toggleFavorite, setPrimary, reope
   );
   const selectedBeach = beaches.find((b) => b.id === (selectedBeachId || settings.primaryFavorite)) || null;
   const detailBeach = beaches.find((b) => b.id === detailId) || null;
+  const closeDetail = useBackToClose(detailBeach !== null, () => setDetailId(null));
   const favoriteBeaches = beaches.filter((b) => settings.favorites.includes(b.id));
   const recommendation = selectedBeach ? getRecommendation(selectedBeach.forecast, activity, lang) : null;
 
@@ -170,7 +172,7 @@ export default function HomeScreen({ settings, toggleFavorite, setPrimary, reope
             selectedActivity={activity}
             isFavorite={settings.favorites.includes(detailBeach.id)}
             onToggleFavorite={() => toggleFavorite(detailBeach.id)}
-            onClose={() => setDetailId(null)}
+            onClose={closeDetail}
           />
         )}
       </AnimatePresence>

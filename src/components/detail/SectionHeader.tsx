@@ -1,5 +1,5 @@
 // כותרת של חלק במסך הפירוט: אייקון, כותרת וכותרת משנה.
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from '../icons';
 
 export default function SectionHeader({ icon, title, subtitle }: { icon: string; title: string; subtitle: string }) {
   const Icon = (LucideIcons as any)[icon];

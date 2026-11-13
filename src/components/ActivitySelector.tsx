@@ -1,7 +1,7 @@
 // רצועת הפעילויות: בחירת פעילות משנה בבת אחת את הציון, ההסבר, חלון הזמן והטבלה.
 // מתי נוגעים: כשמוסיפים פעילות (גם ב-src/data/beaches.ts ובקובצי הטקסטים).
 import { useEffect, useRef } from 'react';
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { ACTIVITIES } from '../data/beaches';
 import { ActivityId } from '../types';
 import { useI18n } from '../i18n/I18nProvider';

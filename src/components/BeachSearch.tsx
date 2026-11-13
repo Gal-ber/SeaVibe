@@ -2,7 +2,7 @@
 // אין תוצאה: הודעה ורשימת החופים הנתמכים (לא ממציאים חוף). נסגר ב-Esc, בבחירה ובלחיצה מחוץ.
 // מתי נוגעים: כשמשנים את התנהגות החיפוש. הניקוי של הטקסט נמצא ב-src/data/beaches.ts.
 import React, { useEffect, useId, useRef, useState } from 'react';
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { BEACHES, beachCity, beachName, searchActivity, searchBeaches } from '../data/beaches';
 import { ActivityId, BeachInfo } from '../types';
 import { translate } from '../i18n/translate';

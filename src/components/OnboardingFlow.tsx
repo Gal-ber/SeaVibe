@@ -3,7 +3,7 @@
 // מתי נוגעים: כשמשנים את שלבי הפתיחה.
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { BEACHES, ACTIVITIES, beachCity, beachName } from '../data/beaches';
 import { ActivityId } from '../types';
 import { useI18n } from '../i18n/I18nProvider';

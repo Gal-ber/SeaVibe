@@ -1,7 +1,7 @@
 // כפתורי דיווח שטח: "מתאים / לא מתאים", ואז סיבה מתוך רשימה קבועה (בלי טקסט חופשי).
 // הסיבה נשמרת כמפתח (reason.*). מתי נוגעים: שלב 3ג (כללי דיווח).
 import { useState } from 'react';
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { motion, AnimatePresence } from 'motion/react';
 import { useI18n } from '../i18n/I18nProvider';
 

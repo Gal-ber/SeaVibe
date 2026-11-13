@@ -10,7 +10,7 @@ import { formatValue, unavailable } from '../lib/formatValue';
 import { beachCity, beachName } from '../data/beaches';
 import { useI18n } from '../i18n/I18nProvider';
 import { motion } from 'motion/react';
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 
 interface FavoriteBeachesStripProps {
   favorites: Beach[];

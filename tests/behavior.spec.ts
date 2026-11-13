@@ -107,3 +107,17 @@ test('חלון "פרטיות ותנאים": נפתח מהפתיחה ומהמסך
   await page.getByRole('button', { name: 'סגירה' }).click();
   await expect(page.getByRole('dialog', { name: 'פרטיות ותנאים' })).toHaveCount(0);
 });
+
+test('כפתור "חזרה" של הטלפון סוגר את מסך הפירוט ולא יוצא מהאפליקציה', async ({ page }) => {
+  await onboard(page);
+  await page.locator('main').getByRole('button', { name: /לנתונים המלאים/ }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByTestId('hero-score')).toBeVisible();
+  // פתיחה וסגירה בכפתור לא משאירה "חזרה" מיותר בהיסטוריה
+  await page.locator('main').getByRole('button', { name: /לנתונים המלאים/ }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'חזרה' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByTestId('hero-score')).toBeVisible();
+});

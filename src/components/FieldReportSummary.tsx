@@ -1,5 +1,5 @@
 // סיכום דיווחי השטח של חוף ופעילות. כללי הסיכום ב-src/lib/fieldReports.ts.
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { FieldReportSummary } from '../types';
 import { useI18n } from '../i18n/I18nProvider';
 

@@ -1,13 +1,13 @@
 // ניתוח הרוח במסך הפירוט: עוצמה, כיוון, מגמה ומשפט על ההשפעה על הפעילות.
 // הנתונים מגיעים מאותה סדרה שעתית כמו הכרטיס. הניתוח עצמו ב-src/lib/windAnalysis.ts.
 import { useMemo } from 'react';
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons, IconName } from './icons';
 import { Beach, ActivityId, WindTrend } from '../types';
 import { analyzeWindForActivity } from '../lib/windAnalysis';
 import { formatNumber, unavailable } from '../lib/formatValue';
 import { useI18n } from '../i18n/I18nProvider';
 
-const TREND_ICON: Record<WindTrend, keyof typeof LucideIcons> = {
+const TREND_ICON: Record<WindTrend, IconName> = {
   stronger: 'TrendingUp', weaker: 'TrendingDown', shifting: 'Move', stable: 'Minus',
 };
 const TREND_COLOR: Record<WindTrend, string> = {
@@ -20,7 +20,7 @@ const TREND_COLOR: Record<WindTrend, string> = {
 export default function WindSummary({ beach, selectedActivity }: { beach: Beach; selectedActivity: ActivityId }) {
   const { t, lang } = useI18n();
   const wind = useMemo(() => analyzeWindForActivity(selectedActivity, beach.forecast, lang), [beach, selectedActivity, lang]);
-  const TrendIcon = LucideIcons[TREND_ICON[wind.trend]] as LucideIcons.LucideIcon;
+  const TrendIcon = LucideIcons[TREND_ICON[wind.trend]];
 
   return (
     <div className="bg-white/80 backdrop-blur-xl border border-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">

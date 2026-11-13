@@ -5,7 +5,7 @@
 // כרטיס בחירת נתון בטבלה השעתית (גלים / רוח / אוויר / מים). הכרטיס הנבחר מודגש.
 // מתי נוגעים: כשמשנים את המראה של כרטיסי הבחירה.
 
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import React from 'react';
 import { SelectedParameter } from '../types';
 

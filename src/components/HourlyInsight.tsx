@@ -1,5 +1,5 @@
 // תיבת "תובנה מהירה" מעל הטבלה השעתית. הטקסט מחושב ב-src/lib/hourlyInsight.ts.
-import * as LucideIcons from 'lucide-react';
+import { Icons as LucideIcons } from './icons';
 import { motion } from 'motion/react';
 import { useI18n } from '../i18n/I18nProvider';
 
