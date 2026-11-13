@@ -2,13 +2,14 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+// הטבלה השעתית: כל שעות היום מאותה סדרה שממנה נלקחים ערכי הכרטיס. השורה של עכשיו מסומנת.
+// מתי נוגעים: כשמשנים עמודות או את סדרן.
 
 import { HourlyForecast, SelectedParameter } from '../types';
 import { formatValue, unavailable } from '../lib/formatValue';
 import { useI18n } from '../i18n/I18nProvider';
 import { Lang } from '../i18n/translate';
 
-// הטבלה השעתית: כל שעות היום מאותה סדרה שממנה נלקחים ערכי הכרטיס. השורה של עכשיו מסומנת.
 
 interface HourlyForecastTableProps {
   data: HourlyForecast[];

@@ -28,7 +28,9 @@
 - `data-sources/` — מקורות נתונים (`sources.config.json`, `_template/`, `mock/`)
 - `src/screens/`, `src/components/`, `src/engine/` — מסכים, רכיבים, מנוע ציון
 - `config/` — ספי ציון, חופים, טקסטים
-- `scripts/` — משיכת נתונים מתוזמנת; `public/data/` — קבצי נתונים; `tests/`; `docs/`
+- `scripts/` — משיכת נתונים מתוזמנת (`scripts/fetcher`, Cloudflare Cron); `public/data/` — קבצי נתונים; `tests/`; `docs/`
+- `server/` — לוגיקת השרת (דיווחים, תחזית); `functions/` — כתובות השרת באתר (Cloudflare Pages); `migrations/` — מבנה המסד (D1)
+- `src/i18n/` — שפות; `docs/decisions/` — החלטות שאושרו; `docs/open-issues.md` — משימות פתוחות
 
 ## קריאות קוד
 שמות באנגלית פשוטה (`HourlyTable`), קובץ עד ~200 שורות, הערה בעברית בראש כל קובץ: מה הוא עושה ומתי נוגעים בו.

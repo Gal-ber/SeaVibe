@@ -236,5 +236,6 @@
   "reports.rateLimited": "You've sent many reports in the last hour. Please try again later.",
   "reports.thanksNoteRemote": "Your report was added to the summary, with no identifying details.",
   "source.name": "Source: {source}",
-  "source.attribution": "Weather data: Open-Meteo.com (CC BY 4.0)"
+  "source.attribution": "Weather data: Open-Meteo.com (CC BY 4.0)",
+  "param.waveHeightNote": "Wave height comes from a sea model about 2–3 km offshore. Waves at the waterline can differ."
 }

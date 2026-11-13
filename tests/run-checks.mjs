@@ -95,7 +95,7 @@ step('אין ניסוחי בטיחות בטקסטים (כלל 8)', () =>
 // FR-15: כל טקסט בקובצי השפה. בקוד מותרות אותיות עבריות רק בהערות.
 const stripComments = (code) => code.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
 step('אין טקסט עברי בקוד, רק בקובצי השפה (FR-15)', () =>
-  filesIn('src').flatMap((file) =>
+  filesIn('src').filter((file) => /\.(ts|tsx)$/.test(file)).flatMap((file) =>
     stripComments(readFileSync(file, 'utf8')).split('\n').flatMap((line, i) =>
       /[\u0590-\u05FF]/.test(line) ? [`${file}:${i + 1}: ${line.trim().slice(0, 80)}`] : []
     )
@@ -122,6 +122,24 @@ step('אין חבילות של מודל שפה (כלל 10)', () => {
   const deps = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies });
   return deps.filter((d) => /openai|anthropic|genai|langchain|cohere|mistral|ollama/i.test(d)).map((d) => `נמצאה חבילה: ${d}`);
 });
+
+// כללי קריאות (CLAUDE.md): הערה בעברית בראש כל קובץ קוד, עד כ-200 שורות, ו-README בכל תיקייה ראשית.
+const CODE_DIRS = ['src', 'server', 'functions', 'scripts', 'tests'];
+const codeFiles = () => CODE_DIRS.flatMap((d) => filesIn(d)).filter((f) => /\.(ts|tsx|mjs)$/.test(f) && !f.endsWith('.d.ts'));
+step('קריאות קוד: הערה בעברית בראש כל קובץ, ועד 200 שורות', () =>
+  codeFiles().flatMap((file) => {
+    const lines = readFileSync(file, 'utf8').split('\n');
+    const found = [];
+    if (!/[\u0590-\u05FF]/.test(lines.slice(0, 8).join('\n'))) found.push(`${file}: חסרה הערה בעברית בראש הקובץ`);
+    if (lines.length > 210) found.push(`${file}: ${lines.length} שורות (יותר מ-200)`);
+    return found;
+  })
+);
+step('יש README בכל תיקייה ראשית', () =>
+  ['src', 'config', 'data-sources', 'scripts', 'server', 'functions', 'migrations', 'tests', 'docs', 'public']
+    .filter((d) => { try { statSync(join(d, 'README.md')); return false; } catch { return true; } })
+    .map((d) => `${d}: חסר README.md`)
+);
 
 step('בדיקת טיפוסים (TypeScript)', () => run('npx tsc --noEmit'));
 step('בדיקות יחידה (נתונים, ערכים חסרים, מנוע)', () => run('npx vitest run'));

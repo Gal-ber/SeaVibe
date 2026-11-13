@@ -2,6 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+// כלים קטנים: מרחק בין שתי נקודות (לחוף הקרוב), צירוף מחלקות עיצוב, ובחירת מצב הרקע לפי הנתונים.
+// מתי נוגעים: כמעט אף פעם.
 
 /**
  * Calculates the distance between two points in km using the Haversine formula

@@ -2,6 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+// כרטיס בחירת נתון בטבלה השעתית (גלים / רוח / אוויר / מים). הכרטיס הנבחר מודגש.
+// מתי נוגעים: כשמשנים את המראה של כרטיסי הבחירה.
 
 import * as LucideIcons from 'lucide-react';
 import React from 'react';

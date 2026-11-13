@@ -42,6 +42,9 @@ export default function HourlySection({ beach, activity }: { beach: Beach; activ
       </div>
       <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-4 sm:p-6 border border-white shadow-xl shadow-slate-200/40">
         <HourlyInsight insight={insight} />
+        {selectedParam === 'waveHeight' && (
+          <p data-testid="wave-height-note" className="mt-3 text-xs font-bold text-slate-700">{t('param.waveHeightNote')}</p>
+        )}
         <div className="mt-6">
           <HourlyForecastTable data={tableRows} scores={scores} currentTime={f.currentTime} selectedParameter={selectedParam} />
         </div>

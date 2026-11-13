@@ -5,6 +5,8 @@ import { loadForecasts, ForecastResult, getDataMode } from '../engine/dataGatewa
 
 export type ForecastStatus = 'loading' | 'ready' | 'unavailable';
 
+const REFRESH_MS = 30 * 60_000;
+
 export function useForecastData() {
   const [status, setStatus] = useState<ForecastStatus>('loading');
   const [result, setResult] = useState<ForecastResult>({ mode: getDataMode(), available: false, data: null, cachedAt: null });
@@ -18,6 +20,28 @@ export function useForecastData() {
   }, []);
 
   useEffect(reload, [reload]);
+
+  // התחזית האמיתית מתעדכנת כל 3 שעות: טוענים מחדש כל 30 דקות, וגם כשחוזרים לאפליקציה אחרי זמן.
+  // הטעינה החוזרת שקטה (בלי מסך טעינה). אם המקור לא זמין, מוצג "לא זמין" ולא נשארת המלצה ישנה.
+  useEffect(() => {
+    let last = Date.now();
+    const refresh = () => {
+      last = Date.now();
+      loadForecasts().then((r) => {
+        setResult(r);
+        setStatus(r.available ? 'ready' : 'unavailable');
+      });
+    };
+    const timer = setInterval(refresh, REFRESH_MS);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && Date.now() - last > REFRESH_MS) refresh();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, []);
 
   // השעון מתעדכן כל דקה, כדי שהכרטיס יעבור לשעה הבאה בזמן
   const [now, setNow] = useState(() => new Date());

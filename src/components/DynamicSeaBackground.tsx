@@ -2,6 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+// רקע הים המונפש מאחורי המסכים: הצבעים משתנים לפי השעה ומצב הים.
+// בהפחתת תנועה הגלים עומדים במקום. מתי נוגעים: כשמשנים את המראה של הרקע.
 
 import { motion, useReducedMotion } from 'motion/react';
 import { BackgroundState } from '../types';

@@ -143,3 +143,13 @@ describe('הגשת התחזית באתר (/data/forecast.json)', () => {
     expect(stale.status).toBe(503);
   });
 });
+
+describe('שער הנתונים בצד האתר', () => {
+  it('תחזית אמת ישנה מ-7 שעות נחשבת "לא זמינה", גם אם הגיעה מעותק שמור במכשיר', async () => {
+    const { isTooOld } = await import('../../src/engine/dataGateway');
+    const t = NOW.getTime();
+    expect(isTooOld(NOW.toISOString(), t + 6 * 3_600_000)).toBe(false);
+    expect(isTooOld(NOW.toISOString(), t + 8 * 3_600_000)).toBe(true);
+    expect(isTooOld(null, t)).toBe(true);
+  });
+});

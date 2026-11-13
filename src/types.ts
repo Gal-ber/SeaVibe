@@ -2,6 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+// הגדרות הטיפוסים של האתר: פעילות, חוף, תחזית, המלצה, דיווח שטח והעדפות.
+// מתי נוגעים: כשמוסיפים שדה חדש שעובר בין כמה קבצים.
 
 export type ActivityId = 'beach' | 'swim' | 'kids' | 'surf' | 'sup' | 'sail';
 
