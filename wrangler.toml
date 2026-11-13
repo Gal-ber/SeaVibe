@@ -10,3 +10,14 @@ binding = "DB"
 database_name = "seavibes-reports"
 database_id = "be214691-43c4-43a5-a8df-8b075a3ab37f"
 migrations_dir = "migrations"
+
+# אתר הבדיקה בלבד (Preview): תחזית אמיתית מהמשימה המתוזמנת.
+# בסביבה הציבורית (Production) אין FORECAST_MODE, ולכן היא נשארת על נתוני דוגמה עד אישור נפרד.
+[env.preview.vars]
+FORECAST_MODE = "live"
+
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "seavibes-reports"
+database_id = "be214691-43c4-43a5-a8df-8b075a3ab37f"
+migrations_dir = "migrations"
