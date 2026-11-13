@@ -1,7 +1,7 @@
 # הגדרות Cloudflare Pages + D1 ל-SeaVibes. אין כאן סודות.
 # לא בשימוש עד הפריסה הראשונה, שנעשית רק באישור הבעלים (ראו docs/deploy-cloudflare.md).
 # את database_id ממלאים אחרי יצירת המסד. "המלח" הסודי (REPORTER_SALT) נשמר רק ב-Cloudflare, לא כאן.
-name = "seavibes"
+name = "sea-vibes"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-11-01"
 
@@ -11,8 +11,12 @@ database_name = "seavibes-reports"
 database_id = "be214691-43c4-43a5-a8df-8b075a3ab37f"
 migrations_dir = "migrations"
 
+# הכתובת הציבורית (Production): תחזית אמיתית. אושר על ידי הבעלים (2026-11-13).
+[vars]
+FORECAST_MODE = "live"
+
 # אתר הבדיקה בלבד (Preview): תחזית אמיתית מהמשימה המתוזמנת.
-# בסביבה הציבורית (Production) אין FORECAST_MODE, ולכן היא נשארת על נתוני דוגמה עד אישור נפרד.
+# שתי הסביבות על תחזית אמיתית. כדי להחזיר סביבה לנתוני דוגמה: למחוק את FORECAST_MODE שלה ולפרוס מחדש.
 [env.preview.vars]
 FORECAST_MODE = "live"
 

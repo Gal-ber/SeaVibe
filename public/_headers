@@ -9,7 +9,7 @@
   Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=(), usb=()
 
 # אתר הבדיקה וכל כתובת פריסה זמנית: לא להופיע במנועי חיפוש
-https://preview.seavibes-7ig.pages.dev/*
+https://preview.sea-vibes.pages.dev/*
   X-Robots-Tag: noindex, nofollow
-https://:hash.seavibes-7ig.pages.dev/*
+https://:hash.sea-vibes.pages.dev/*
   X-Robots-Tag: noindex, nofollow

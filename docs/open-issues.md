@@ -3,18 +3,18 @@
 ## 1. ✅ נפתר: דיווח שטח לא נשמר באתר הבדיקה (Cloudflare preview)
 - **נפתח ונפתר:** 2026-11-13.
 - **הסיבה:** לסביבת Preview לא היה סוד `REPORTER_SALT` בכלל (הלוגים הראו 500 עם outcome "ok", כלומר השרת שלנו סירב לעבוד בלי סוד). חיבור המסד שהבעלים הוסיף היה נחוץ גם הוא.
-- **התיקון:** `openssl rand -hex 32 | npx wrangler pages secret put REPORTER_SALT --project-name seavibes --env preview`, ופריסה מחדש.
+- **התיקון:** `openssl rand -hex 32 | npx wrangler pages secret put REPORTER_SALT --project-name sea-vibes --env preview`, ופריסה מחדש.
 - **אומת:** דיווח נשמר (201). במסד: חוף, פעילות, הצבעה, סיבה מהרשימה, ומזהה מוצפן בן 64 תווים. בלי מיקום ובלי פרטים אישיים.
 
 ### הפרטים המקוריים
-- **מה קורה:** באתר הבדיקה https://preview.seavibes-7ig.pages.dev, שליחת דיווח מציגה "לא הצלחנו לשמור את הדיווח". המסד `seavibes-reports` ריק.
+- **מה קורה:** באתר הבדיקה https://preview.sea-vibes.pages.dev, שליחת דיווח מציגה "לא הצלחנו לשמור את הדיווח". המסד `seavibes-reports` ריק.
 - **מה כבר נעשה:**
   - הסוד `REPORTER_SALT` נשמר דרך הכלי (`wrangler pages secret put`). כנראה רק לסביבת Production.
   - הבעלים הוסיף בלוח הניהול, בסביבת Preview: את הסוד `REPORTER_SALT`, ואת החיבור (Binding) למסד D1 בשם `DB` ← `seavibes-reports`, שלא היה קיים.
   - האתר נפרס מחדש אחרי השינויים. עדיין לא עובד.
 - **סיבות אפשריות לבדיקה, לפי הסדר:**
   1. הדפדפן מציג עדיין את הגרסה הישנה שנשמרה לשימוש בלי רשת (service worker). לבדוק בחלון גלישה בסתר.
-  2. השרת מחזיר שגיאה. לראות את הלוגים בזמן אמת: `npx wrangler pages deployment tail --project-name seavibes` בזמן שהבעלים שולח דיווח. לחפש `not_configured` (חסר סוד) או שגיאת `DB` (חסר חיבור).
+  2. השרת מחזיר שגיאה. לראות את הלוגים בזמן אמת: `npx wrangler pages deployment tail --project-name sea-vibes` בזמן שהבעלים שולח דיווח. לחפש `not_configured` (חסר סוד) או שגיאת `DB` (חסר חיבור).
   3. הסוד בסביבת Preview קצר מ-16 תווים, והשרת מסרב לעבוד בלעדיו.
   4. הקובץ `wrangler.toml` מגדיר את החיבור למסד, אבל ייתכן שלוח הניהול גובר עליו. לבדוק ב-Settings ← Bindings.
 - **הערה:** Claude לא יכול לשלוח בקשות לאתר בעצמו (מוגבל בהגדרות הפרויקט). הבדיקה נעשית משותפת: הבעלים שולח דיווח, ו-Claude בודק במסד ובלוגים.

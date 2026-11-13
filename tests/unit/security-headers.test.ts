@@ -14,6 +14,6 @@ describe('כותרות אבטחה', () => {
   ])('%s', (line) => expect(headers).toContain(line));
 
   it('אתר הבדיקה מסומן noindex', () => {
-    expect(headers).toMatch(/preview\.seavibes-7ig\.pages\.dev\/\*\n\s+X-Robots-Tag: noindex/);
+    expect(headers).toMatch(/preview\.sea-vibes\.pages\.dev\/\*\n\s+X-Robots-Tag: noindex/);
   });
 });

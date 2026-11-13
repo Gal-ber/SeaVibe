@@ -22,8 +22,8 @@
 5. יצירת המסד: `npx wrangler d1 create seavibes-reports`, והעתקת ה-`database_id` לקובץ `wrangler.toml`.
 6. יצירת הטבלה: `npx wrangler d1 migrations apply seavibes-reports --remote`.
 7. **"המלח" הסודי — אתה מזין בעצמך, לא בצ'אט ולא בקוד:**
-   `openssl rand -hex 32 | npx wrangler pages secret put REPORTER_SALT --project-name seavibes` (לסביבה הציבורית)
-   `openssl rand -hex 32 | npx wrangler pages secret put REPORTER_SALT --project-name seavibes --env preview` (לאתר הבדיקה)
+   `openssl rand -hex 32 | npx wrangler pages secret put REPORTER_SALT --project-name sea-vibes` (לסביבה הציבורית)
+   `openssl rand -hex 32 | npx wrangler pages secret put REPORTER_SALT --project-name sea-vibes --env preview` (לאתר הבדיקה)
    חשוב: כל סביבה צריכה סוד משלה.
    ערך מומלץ: 64 תווים אקראיים (למשל מהפקודה `openssl rand -hex 32`).
 8. שינוי `reportsMode` ל-`remote` בקובץ `config/app.config.json` (שינוי נפרד שאתה סוקר).
@@ -97,9 +97,9 @@
    FORECAST_MODE = "live"
    ```
    הסוד `REPORTER_SALT` לסביבה הציבורית כבר הוגדר.
-2. לפרוס: `npm run build:remote && npx wrangler pages deploy dist --project-name seavibes --branch main`.
+2. לפרוס: `npm run build:remote && npx wrangler pages deploy dist --project-name sea-vibes --branch main`.
    הפקודה `npm run deploy:production` חסומה בכוונה עד אישור.
-3. לבדוק בכתובת `https://seavibes-7ig.pages.dev`:
+3. לבדוק בכתובת `https://sea-vibes.pages.dev`:
    - התחזית האמיתית מוצגת.
    - דיווח נשמר.
    - חלון הפרטיות נפתח.
