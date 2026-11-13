@@ -19,6 +19,7 @@ const hhmm = z.string().regex(/^([01]\d|2[0-3]):00$/);
 
 export const ScoringConfigSchema = z.object({
   version: z.string(),
+  calibrated: z.boolean(),
   points: z.object({ comfortable: z.number(), acceptable: z.number(), uncomfortable: z.number() }),
   cap: z.object({ minWeight: z.number(), maxScore: z.number() }),
   rain: z.object({ above: z.number(), penalty: z.number() }),

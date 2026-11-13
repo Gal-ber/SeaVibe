@@ -237,5 +237,6 @@
   "reports.thanksNoteRemote": "הדיווח נוסף לסיכום, בלי פרטים מזהים.",
   "source.name": "מקור: {source}",
   "source.attribution": "נתוני מזג אוויר: Open-Meteo.com (CC BY 4.0)",
-  "param.waveHeightNote": "גובה הגלים לפי מודל ים, כ-2–3 ק״מ מהחוף. על קו המים הגלים יכולים להיות שונים."
+  "param.waveHeightNote": "גובה הגלים לפי מודל ים, כ-2–3 ק״מ מהחוף. על קו המים הגלים יכולים להיות שונים.",
+  "score.experimental": "ציון ניסיוני: ספי הנוחות עדיין בכיול ועשויים להשתנות."
 }

@@ -2,6 +2,7 @@
 import * as LucideIcons from 'lucide-react';
 import { BeachRecommendation, ScoreStatus } from '../../types';
 import { useI18n } from '../../i18n/I18nProvider';
+import { SCORING } from '../../engine/scoringConfig';
 
 const STATUS_BG: Record<ScoreStatus, string> = {
   excellent: 'bg-emerald-700', good: 'bg-sea-700', fair: 'bg-amber-700', poor: 'bg-rose-700',
@@ -63,6 +64,7 @@ export default function RecommendationSummary({ recommendation, isMock, generate
             </div>
           </div>
           <p className="text-slate-700 font-medium leading-relaxed text-lg ps-4 border-s-2 border-slate-200">{recommendation.shortExplanation}</p>
+          {!SCORING.calibrated && <p className="mt-4 text-xs font-bold text-slate-700">{t('score.experimental')}</p>}
         </>
       )}
     </section>

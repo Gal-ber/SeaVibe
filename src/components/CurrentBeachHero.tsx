@@ -8,6 +8,7 @@ import { formatValue } from '../lib/formatValue';
 import { beachCity, beachName } from '../data/beaches';
 import { useI18n } from '../i18n/I18nProvider';
 import ScoreRing from './ScoreRing';
+import { SCORING } from '../engine/scoringConfig';
 
 interface CurrentBeachHeroProps {
   beach: Beach;
@@ -83,6 +84,9 @@ export default function CurrentBeachHero({ beach, recommendation, isMock, select
                 <div className={`text-sm font-black uppercase tracking-widest ${STATUS_TEXT[recommendation.status]}`}>
                   {t(`status.${recommendation.status}`)}
                 </div>
+                {!SCORING.calibrated && (
+                  <p data-testid="score-experimental" className="text-xs font-bold text-slate-700">{t('score.experimental')}</p>
+                )}
               </div>
               <h3 className="text-2xl font-black text-slate-900 leading-tight mb-3">{recommendation.headline}</h3>
               <p data-testid="hero-explanation" className="text-slate-700 text-lg font-medium leading-relaxed mb-2">{recommendation.shortExplanation}</p>

@@ -79,6 +79,11 @@ test('דיווח שטח: נשמר במכשיר, נספר נכון, אפשר לש
   await expect(page.getByTestId('hero-score')).toHaveText(scoreBefore);
 });
 
+test('ליד הציון מוצגת הערה שהוא ניסיוני, כל עוד הספים לא כוילו', async ({ page }) => {
+  await onboard(page);
+  await expect(page.getByTestId('score-experimental')).toContainText('ציון ניסיוני');
+});
+
 test('אפשר לדלג על כל שלבי הפתיחה', async ({ page }) => {
   await page.goto('/');
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'דלג' }).click();
