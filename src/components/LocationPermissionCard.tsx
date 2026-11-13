@@ -28,7 +28,7 @@ export default function LocationPermissionCard({ beachName, onEnable, onDismiss 
         </div>
       </div>
       <div className="flex items-center gap-3 ms-16">
-        <button onClick={onEnable} className="flex-1 min-h-11 py-3 bg-sea-600 text-white text-xs font-black rounded-xl shadow-lg shadow-sea-600/20 active:scale-95 transition-all">
+        <button onClick={onEnable} className="flex-1 min-h-11 py-3 bg-sea-700 text-white text-xs font-black rounded-xl shadow-lg shadow-sea-600/20 active:scale-95 transition-all">
           {t('location.enable')}
         </button>
         <button onClick={onDismiss} className="flex-1 min-h-11 py-3 text-slate-600 text-xs font-bold hover:text-slate-800 transition-colors">

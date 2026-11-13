@@ -1,5 +1,6 @@
 // המסך הראשי: כותרת, חיפוש, חופים מועדפים, כרטיס הציון, בחירת פעילות ומסך הפירוט.
 // כל התחזיות מגיעות משער הנתונים. במצב mock אין שום פנייה לאינטרנט.
+// בטלפון: עמודה אחת. במחשב (lg): שתי עמודות, כרטיס הציון והטבלה השעתית זה לצד זה.
 // מתי נוגעים: כשמשנים את סדר החלקים במסך הראשי.
 import { useMemo, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
@@ -12,6 +13,7 @@ import { useForecastData } from '../lib/useForecastData';
 import { useSettings } from '../lib/useSettings';
 import { getBackgroundState } from '../lib/utils';
 import { useI18n } from '../i18n/I18nProvider';
+import { useMediaQuery } from '../lib/useMediaQuery';
 import ActivitySelector from '../components/ActivitySelector';
 import BeachSearch from '../components/BeachSearch';
 import FavoriteBeachesStrip from '../components/FavoriteBeachesStrip';
@@ -20,6 +22,7 @@ import DynamicSeaBackground from '../components/DynamicSeaBackground';
 import DetailedBeachView from '../components/DetailedBeachView';
 import LocationPermissionCard from '../components/LocationPermissionCard';
 import LanguageToggle from '../components/LanguageToggle';
+import HourlySection from '../components/HourlySection';
 
 const DISMISS_KEY = 'seavibes_location_dismissed';
 const readDismissed = () => { try { return !!localStorage.getItem(DISMISS_KEY); } catch { return false; } };
@@ -32,6 +35,7 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
   const [locationDismissed, setLocationDismissed] = useState(readDismissed);
 
   const { status, result, reload, now } = useForecastData();
+  const isWide = useMediaQuery('(min-width: 1024px)');
   const isMock = result.mode === 'mock';
   const beaches: Beach[] = useMemo(
     () => BEACHES.map((b) => ({ ...b, forecast: buildBeachForecast(result.data?.series[b.id], result.mode, now) })),
@@ -48,10 +52,10 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
   };
 
   return (
-    <div className="min-h-screen font-sans relative overflow-x-hidden">
+    <div className="safe-area min-h-screen font-sans relative overflow-x-hidden">
       <DynamicSeaBackground state={selectedBeach ? getBackgroundState(selectedBeach) : 'calm_sunny_day'} />
 
-      <main className="max-w-md mx-auto px-4 sm:px-6 pt-6 pb-20">
+      <main className="max-w-md md:max-w-2xl lg:max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-20">
         <header className="mb-6 py-2">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-8 h-8 bg-sea-600 rounded-xl flex items-center justify-center shadow-lg shadow-sea-500/20">
@@ -66,6 +70,8 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
           <p className="text-[11px] font-bold text-slate-700 uppercase tracking-widest leading-none">{t('app.tagline')}</p>
         </header>
 
+        <div className="lg:grid lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:gap-10 lg:items-start">
+        <div>
         <div className="mb-8">
           <BeachSearch onSelect={setSelectedBeachId} favorites={settings.favorites} onToggleFavorite={toggleFavorite} />
         </div>
@@ -81,7 +87,7 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
           <div className="py-16 text-center space-y-4" role="status">
             <p className="text-lg font-black text-slate-800">{t(status === 'loading' ? 'data.loading' : 'data.error')}</p>
             {status === 'unavailable' && (
-              <button onClick={reload} className="min-h-11 px-6 py-3 bg-sea-600 text-white rounded-2xl font-extrabold">{t('data.retry')}</button>
+              <button onClick={reload} className="min-h-11 px-6 py-3 bg-sea-700 text-white rounded-2xl font-extrabold">{t('data.retry')}</button>
             )}
           </div>
         ) : selectedBeach ? (
@@ -117,6 +123,15 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
             <p className="text-sm font-medium text-slate-700">{t('app.emptyHint')}</p>
           </div>
         )}
+        </div>
+
+        {/* עמודה שנייה, רק במחשב: הטבלה השעתית של אותו חוף ואותה פעילות */}
+        {selectedBeach && status === 'ready' && isWide && (
+          <aside data-testid="desktop-hourly" className="lg:sticky lg:top-6">
+            <HourlySection beach={selectedBeach} activity={activity} />
+          </aside>
+        )}
+        </div>
       </main>
 
       <AnimatePresence>

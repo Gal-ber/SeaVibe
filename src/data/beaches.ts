@@ -8,11 +8,11 @@ import { Lang } from '../i18n/translate';
 
 export const ACTIVITIES: Activity[] = [
   { id: 'beach', icon: 'Sun' },
-  { id: 'swim', icon: 'Waves' },
+  { id: 'swim', icon: 'WavesLadder' },
   { id: 'kids', icon: 'Baby' },
-  { id: 'surf', icon: 'Zap' },
-  { id: 'sup', icon: 'Anchor' },
-  { id: 'sail', icon: 'Ship' },
+  { id: 'surf', icon: 'Waves' },
+  { id: 'sup', icon: 'Kayak' },
+  { id: 'sail', icon: 'Sailboat' },
 ];
 
 export const BEACHES: BeachInfo[] = catalog.beaches.map((b) => ({

@@ -4,7 +4,6 @@
  */
 
 import { HourlyForecast, SelectedParameter } from '../types';
-import { motion } from 'motion/react';
 import { formatValue, unavailable } from '../lib/formatValue';
 import { useI18n } from '../i18n/I18nProvider';
 import { Lang } from '../i18n/translate';
@@ -41,7 +40,7 @@ export default function HourlyForecastTable({ data, scores, selectedParameter, c
 
   return (
     <div className="w-full overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm">
-      <div className="overflow-x-auto no-scrollbar">
+      <div className="overflow-x-auto no-scrollbar" tabIndex={0} role="region" aria-label={t('detail.hourly.title')}>
         <table className="w-full text-start border-collapse">
           <thead>
             <tr className="bg-slate-50/50">
@@ -59,11 +58,8 @@ export default function HourlyForecastTable({ data, scores, selectedParameter, c
             </tr>
           </thead>
           <tbody>
-            {data.map((row, rowIndex) => (
-              <motion.tr
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: Math.min(rowIndex, 10) * 0.03 }}
+            {data.map((row) => (
+              <tr
                 key={row.time}
                 data-testid={row.time === currentTime ? 'current-hour-row' : undefined}
                 className={`hover:bg-slate-50/50 transition-colors ${row.time === currentTime ? 'bg-amber-50' : ''}`}
@@ -80,7 +76,7 @@ export default function HourlyForecastTable({ data, scores, selectedParameter, c
                       : renderCellValue(row, col, row.time === currentTime, lang, t)}
                   </td>
                 ))}
-              </motion.tr>
+              </tr>
             ))}
           </tbody>
         </table>

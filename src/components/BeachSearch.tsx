@@ -81,7 +81,7 @@ export default function BeachSearch({ onSelect, favorites, onToggleFavorite, inp
       </div>
 
       {showList && (
-        <div id={listId} className="absolute top-full inset-x-0 mt-3 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden max-h-[50vh] overflow-y-auto no-scrollbar">
+        <div id={listId} className="mt-3 lg:absolute lg:top-full lg:inset-x-0 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden max-h-[50vh] overflow-y-auto no-scrollbar">
           {!hasQuery && <p className="px-5 pt-5 pb-2 text-[11px] font-black text-slate-600 uppercase tracking-widest">{t('search.favorites')}</p>}
           {results.length > 0 ? (
             <ul>{results.map(row)}</ul>

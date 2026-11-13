@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { BackgroundState } from '../types';
 
 interface DynamicSeaBackgroundProps {
@@ -59,10 +59,12 @@ export default function DynamicSeaBackground({ state }: DynamicSeaBackgroundProp
 }
 
 function WaveLayer({ speed, color, height, y }: { speed: number, color: string, height: string, y: string }) {
+  // הפחתת תנועה: הגלים ברקע עומדים במקום
+  const reduced = useReducedMotion();
   return (
     <motion.div
       initial={{ x: '-10%' }}
-      animate={{ x: '10%' }}
+      animate={reduced ? { x: '-10%' } : { x: '10%' }}
       transition={{
         duration: speed,
         repeat: Infinity,

@@ -53,7 +53,7 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
             <LucideIcons.MapPin size={40} aria-hidden="true" />
           </div>
           <div className="w-full space-y-3">
-            <button onClick={() => finish(true)} className="w-full min-h-11 py-4 bg-sea-600 text-white rounded-2xl font-extrabold shadow-lg shadow-sea-200">
+            <button onClick={() => finish(true)} className="w-full min-h-11 py-4 bg-sea-700 text-white rounded-2xl font-extrabold shadow-lg shadow-sea-200">
               {t('onboarding.location.allow')}
             </button>
             <button onClick={next} className="w-full min-h-11 py-4 text-slate-600 font-bold hover:text-slate-800">
@@ -85,7 +85,7 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
           <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600">
             <LucideIcons.Check size={48} aria-hidden="true" />
           </div>
-          <button onClick={() => finish(false)} className="w-full min-h-11 py-4 bg-sea-600 text-white rounded-2xl font-extrabold shadow-lg shadow-sea-200">
+          <button onClick={() => finish(false)} className="w-full min-h-11 py-4 bg-sea-700 text-white rounded-2xl font-extrabold shadow-lg shadow-sea-200">
             {t('onboarding.done.cta')}
           </button>
         </div>
@@ -96,7 +96,7 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
   const canContinue = !(step === 1 && favorites.length === 0);
 
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col p-6 sm:p-8 overflow-y-auto">
+    <div className="safe-area fixed inset-0 z-50 bg-white flex flex-col p-6 sm:p-8 overflow-y-auto">
       <div className="w-full max-w-xl mx-auto flex flex-col flex-1">
         <div className="flex justify-between items-center mb-8 gap-3">
           <div className="flex items-center gap-4">

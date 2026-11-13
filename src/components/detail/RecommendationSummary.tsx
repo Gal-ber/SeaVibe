@@ -4,7 +4,7 @@ import { BeachRecommendation, ScoreStatus } from '../../types';
 import { useI18n } from '../../i18n/I18nProvider';
 
 const STATUS_BG: Record<ScoreStatus, string> = {
-  excellent: 'bg-emerald-600', good: 'bg-sea-700', fair: 'bg-amber-600', poor: 'bg-rose-600',
+  excellent: 'bg-emerald-700', good: 'bg-sea-700', fair: 'bg-amber-700', poor: 'bg-rose-700',
 };
 
 export default function RecommendationSummary({ recommendation, isMock }: { recommendation: BeachRecommendation | null; isMock: boolean }) {

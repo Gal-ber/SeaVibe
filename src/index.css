@@ -42,3 +42,27 @@
   @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-sm;
 }
 
+
+/* אזורי החיתוך של iPhone (מגרעת ופס תחתון): התוכן לא נחתך */
+.safe-area {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-inline-start: env(safe-area-inset-left);
+  padding-inline-end: env(safe-area-inset-right);
+}
+
+/* הפחתת תנועה: בלי אנימציות ובלי מעברים */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* מסגרת מיקוד ברורה בניווט מקלדת */
+:focus-visible {
+  outline: 3px solid var(--color-sea-700);
+  outline-offset: 2px;
+}

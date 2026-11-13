@@ -4,22 +4,17 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
-import { Beach, ActivityId, BeachRecommendation, SelectedParameter, FieldReport } from '../types';
+import { Beach, ActivityId, BeachRecommendation, FieldReport } from '../types';
 import WindSummary from './WindSummary';
-import ParameterCard from './ParameterCard';
-import HourlyForecastTable from './HourlyForecastTable';
-import HourlyInsight from './HourlyInsight';
+import HourlySection from './HourlySection';
 import FieldReportSummaryView from './FieldReportSummary';
 import FieldReportActions from './FieldReportActions';
 import DynamicSeaBackground from './DynamicSeaBackground';
 import SectionHeader from './detail/SectionHeader';
 import RecommendationSummary from './detail/RecommendationSummary';
 import WhySection from './detail/WhySection';
-import { generateHourlyInsight } from '../lib/hourlyInsight';
 import { getRecentFieldReports, summarizeFieldReports } from '../lib/fieldReports';
 import { getBackgroundState } from '../lib/utils';
-import { formatValue } from '../lib/formatValue';
-import { hourlyScores } from '../engine/recommend';
 import { beachName } from '../data/beaches';
 import { useI18n } from '../i18n/I18nProvider';
 
@@ -35,23 +30,8 @@ interface DetailedBeachViewProps {
 
 export default function DetailedBeachView({ beach, recommendation, isMock, selectedActivity, isFavorite, onToggleFavorite, onClose }: DetailedBeachViewProps) {
   const { t, lang } = useI18n();
-  const [selectedParam, setSelectedParam] = useState<SelectedParameter>('waveHeight');
   const [reports, setReports] = useState<FieldReport[]>([]);
-  const f = beach.forecast;
   const activityLabel = t(`activity.${selectedActivity}`);
-
-  const parameterOptions: { id: SelectedParameter; label: string; icon: string; value: string }[] = [
-    { id: 'waveHeight', label: t('param.waveHeight'), icon: 'Waves', value: formatValue('waveHeight', f.waveHeight, lang) },
-    { id: 'wind', label: t('param.wind'), icon: 'Wind', value: formatValue('windSpeed', f.windSpeed, lang) },
-    { id: 'airTemperature', label: t('param.airTemperature'), icon: 'Thermometer', value: formatValue('temperature', f.temperature, lang) },
-    { id: 'waterTemperature', label: t('param.waterTemperature'), icon: 'Droplets', value: formatValue('temperature', f.waterTemp, lang) },
-  ];
-
-  // התובנה מסתכלת על השעות מעכשיו ועד סוף היום
-  const hours = f.hourlyForecast;
-  const nowIndex = hours.findIndex((h) => h.time === f.currentTime);
-  const insight = generateHourlyInsight(selectedParam, nowIndex >= 0 ? hours.slice(nowIndex) : hours, selectedActivity, lang);
-  const scores = useMemo(() => hourlyScores(f, selectedActivity), [f, selectedActivity]);
 
   const reportSummary = useMemo(
     () => summarizeFieldReports(getRecentFieldReports(reports, beach.id, selectedActivity), activityLabel, lang),
@@ -68,7 +48,7 @@ export default function DetailedBeachView({ beach, recommendation, isMock, selec
       initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className="fixed inset-0 z-[100] bg-slate-50 overflow-y-auto pb-20"
+      className="safe-area fixed inset-0 z-[100] bg-slate-50 overflow-y-auto pb-20"
       role="dialog"
       aria-modal="true"
       aria-label={`${t('detail.title')}: ${beachName(beach, lang)}`}
@@ -99,20 +79,7 @@ export default function DetailedBeachView({ beach, recommendation, isMock, selec
       <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-12 mt-4 relative z-10">
         <RecommendationSummary recommendation={recommendation} isMock={isMock} />
 
-        <section className="space-y-6">
-          <SectionHeader icon="BarChart3" title={t('detail.hourly.title')} subtitle={t('detail.hourly.subtitle')} />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {parameterOptions.map((opt) => (
-              <ParameterCard key={opt.id} {...opt} isSelected={selectedParam === opt.id} onClick={setSelectedParam} />
-            ))}
-          </div>
-          <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-4 sm:p-6 border border-white shadow-xl shadow-slate-200/40">
-            <HourlyInsight insight={insight} />
-            <div className="mt-6">
-              <HourlyForecastTable data={hours} scores={scores} currentTime={f.currentTime} selectedParameter={selectedParam} />
-            </div>
-          </div>
-        </section>
+        <HourlySection beach={beach} activity={selectedActivity} />
 
         <section className="space-y-6">
           <SectionHeader icon="Wind" title={t('detail.wind.title')} subtitle={t('detail.wind.subtitle')} />

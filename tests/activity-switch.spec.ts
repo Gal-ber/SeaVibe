@@ -14,10 +14,10 @@ async function snapshot(page: Page) {
 
 async function tableScores(page: Page) {
   await page.getByRole('button', { name: /לנתונים המלאים/ }).click();
-  const scores = await page.getByTestId('cell-score').allInnerTexts();
-  const now = await page.getByTestId('current-hour-row').getByTestId('cell-score').innerText();
+  const scores = await page.getByRole('dialog').getByTestId('cell-score').allInnerTexts();
+  const now = await page.getByRole('dialog').getByTestId('current-hour-row').getByTestId('cell-score').innerText();
   await page.getByRole('button', { name: 'חזרה' }).click();
-  await expect(page.getByTestId('current-hour-row')).toHaveCount(0);
+  await expect(page.getByRole('dialog').getByTestId('current-hour-row')).toHaveCount(0);
   return { scores, now };
 }
 

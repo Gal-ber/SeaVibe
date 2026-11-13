@@ -25,7 +25,7 @@ test('ערכי הכרטיס שווים לשעה הנוכחית בטבלה, בכ�
     for (const f of FIELDS) hero[f] = (await page.getByTestId(`hero-${f}`).innerText()).trim();
 
     await page.getByRole('button', { name: /לנתונים המלאים/ }).click();
-    const row = page.getByTestId('current-hour-row');
+    const row = page.getByRole('dialog').getByTestId('current-hour-row');
     await expect(row).toBeVisible();
     for (const f of FIELDS) {
       await expect(row.getByTestId(`cell-${f}`), `${beach.id} / ${f}`).toHaveText(hero[f]);

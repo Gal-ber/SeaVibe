@@ -206,5 +206,6 @@
   "compass.S": "דרומית",
   "compass.SW": "דרום-מערבית",
   "compass.W": "מערבית",
-  "compass.NW": "צפון-מערבית"
+  "compass.NW": "צפון-מערבית",
+  "activity.label": "בחירת פעילות"
 }

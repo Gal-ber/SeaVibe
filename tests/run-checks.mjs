@@ -53,9 +53,10 @@ step('קוד המקור (src) לא פונה לאינטרנט', () =>
 );
 
 // כלל 8: הציון הוא נוחות, לא בטיחות. ניסוחים כאלה אסורים בטקסטים שהמשתמש רואה.
+// כל הטקסט שהמשתמש רואה נמצא בקובצי השפה (נאכף בבדיקת FR-15), ולכן סורקים אותם.
 const SAFETY_WORDS = /בטוח|סכנ|מסוכ|מומלץ להיכנס|טביע|\bsafe\b|\bdanger/i;
 step('אין ניסוחי בטיחות בטקסטים (כלל 8)', () =>
-  [...filesIn('src'), ...filesIn('config/texts')].flatMap((file) =>
+  filesIn('config/texts').flatMap((file) =>
     readFileSync(file, 'utf8').split('\n').flatMap((line, i) =>
       SAFETY_WORDS.test(line) && !line.includes('SAFETY_WORDS') ? [`${file}:${i + 1}: ${line.trim().slice(0, 80)}`] : []
     )

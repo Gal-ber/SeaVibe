@@ -206,5 +206,6 @@
   "compass.S": "South",
   "compass.SW": "Southwest",
   "compass.W": "West",
-  "compass.NW": "Northwest"
+  "compass.NW": "Northwest",
+  "activity.label": "Choose activity"
 }
