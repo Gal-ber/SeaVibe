@@ -7,6 +7,8 @@ import { Beach, ActivityId } from '../types';
 import { analyzeWindForActivity } from '../lib/windAnalysis';
 import * as LucideIcons from 'lucide-react';
 import { useMemo } from 'react';
+import { formatNumber, UNAVAILABLE } from '../lib/formatValue';
+import texts from '../../config/texts/he.json';
 
 interface WindSummaryProps {
   beach: Beach;
@@ -49,8 +51,8 @@ export default function WindSummary({ beach, selectedActivity }: WindSummaryProp
         <div className="flex-1 min-w-[120px]">
           <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">עוצמת הרוח</div>
           <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-black text-slate-900">{windAnalysis.speed}</span>
-            <span className="text-sm font-black text-slate-400 uppercase">km/h</span>
+            <span className="text-4xl font-black text-slate-900">{formatNumber('windSpeed', windAnalysis.speed)}</span>
+            {windAnalysis.speed !== null && <span className="text-sm font-black text-slate-400">{texts['unit.kmh']}</span>}
           </div>
         </div>
 
@@ -60,7 +62,7 @@ export default function WindSummary({ beach, selectedActivity }: WindSummaryProp
             <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-900 border border-slate-100">
                <LucideIcons.Compass size={20} />
             </div>
-            <span className="text-xl font-black text-slate-800">{windAnalysis.direction}</span>
+            <span className="text-xl font-black text-slate-800">{windAnalysis.direction ?? UNAVAILABLE}</span>
           </div>
         </div>
 

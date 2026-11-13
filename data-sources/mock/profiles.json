@@ -1,0 +1,12 @@
+{
+  "_הסבר": "פרופיל נתוני הדוגמה לכל חוף: ערכי בסיס ליום טיפוסי. הסקריפט scripts/generate-mock.mjs הופך אותם לתחזית שעתית. waterTemp: null = נתון חסר בכוונה, כדי להראות 'לא זמין'.",
+  "profiles": [
+    { "beachId": "gordon", "waveHeight": 0.3, "wavePeriod": 5, "windSpeed": 12, "windDirection": 270, "windTrend": "stronger", "airMax": 26, "waterTemp": 22, "uvMax": 7, "precipitationChance": 0 },
+    { "beachId": "herzliya", "waveHeight": 0.2, "wavePeriod": 4, "windSpeed": 10, "windDirection": 315, "windTrend": "stable", "airMax": 25, "waterTemp": 22, "uvMax": 6, "precipitationChance": 5 },
+    { "beachId": "palmachim", "waveHeight": 0.4, "wavePeriod": 6, "windSpeed": 8, "windDirection": 270, "windTrend": "stable", "airMax": 24, "waterTemp": 21, "uvMax": 5, "precipitationChance": 0 },
+    { "beachId": "netanya", "waveHeight": 0.8, "wavePeriod": 8, "windSpeed": 22, "windDirection": 225, "windTrend": "stronger", "airMax": 23, "waterTemp": 21, "uvMax": 6, "precipitationChance": 10 },
+    { "beachId": "haifa", "waveHeight": 0.5, "wavePeriod": 5, "windSpeed": 15, "windDirection": 270, "windTrend": "weaker", "airMax": 24, "waterTemp": 21, "uvMax": 7, "precipitationChance": 0 },
+    { "beachId": "ashdod", "waveHeight": 0.4, "wavePeriod": 6, "windSpeed": 14, "windDirection": 270, "windTrend": "stronger", "airMax": 25, "waterTemp": 22, "uvMax": 6, "precipitationChance": 0 },
+    { "beachId": "eilat", "waveHeight": 0.1, "wavePeriod": 2, "windSpeed": 5, "windDirection": 0, "windTrend": "stable", "airMax": 32, "waterTemp": null, "uvMax": 9, "precipitationChance": 0 }
+  ]
+}

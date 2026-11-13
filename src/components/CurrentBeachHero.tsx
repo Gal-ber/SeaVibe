@@ -7,17 +7,23 @@ import { Beach, ActivityId, BeachRecommendation } from '../types';
 import { ACTIVITIES } from '../data/beaches';
 import * as LucideIcons from 'lucide-react';
 import { motion } from 'motion/react';
+import { formatValue } from '../lib/formatValue';
+import texts from '../../config/texts/he.json';
+
+// כרטיס הציון במסך הראשי: ציון, הסבר, חלון זמן וארבעת הנתונים של השעה הנוכחית.
+// אם אין ציון (חסר נתון קריטי) מוצג "אין מספיק מידע". במצב mock מוצגת תגית "נתוני דוגמה".
 
 interface CurrentBeachHeroProps {
   beach: Beach;
-  recommendation: BeachRecommendation;
+  recommendation: BeachRecommendation | null;
+  isMock: boolean;
   selectedActivity: ActivityId;
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onShowDetails: () => void;
 }
 
-export default function CurrentBeachHero({ beach, recommendation, selectedActivity, isFavorite, onToggleFavorite, onShowDetails }: CurrentBeachHeroProps) {
+export default function CurrentBeachHero({ beach, recommendation, isMock, selectedActivity, isFavorite, onToggleFavorite, onShowDetails }: CurrentBeachHeroProps) {
   const getStatusColor = (status: BeachRecommendation['status']) => {
     switch (status) {
       case 'excellent': return 'text-emerald-500';
@@ -65,6 +71,12 @@ export default function CurrentBeachHero({ beach, recommendation, selectedActivi
       </div>
 
       <div className="bg-white/60 backdrop-blur-xl rounded-[3rem] p-8 border border-white/80 shadow-2xl shadow-slate-200/40">
+        {isMock && (
+          <div data-testid="card-mock-badge" className="mb-4 inline-block text-[11px] font-bold text-slate-700 bg-sand-200 px-2 py-0.5 rounded-full">
+            {texts['dataBadge.mock']}
+          </div>
+        )}
+        {recommendation ? (
         <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
           <div className="flex-1 order-2 md:order-1 text-center md:text-right">
              <div className="flex flex-col gap-1 mb-6">
@@ -127,28 +139,33 @@ export default function CurrentBeachHero({ beach, recommendation, selectedActivi
           </div>
         </div>
 
+        ) : (
+          <div data-testid="score-insufficient" className="text-center py-6">
+            <h2 className="text-2xl font-black text-slate-900 mb-2">{texts['score.insufficient']}</h2>
+            <p className="text-slate-500 font-medium">{texts['score.insufficientHint']}</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-4 gap-3 mt-10">
-           <HeroStat icon="Thermometer" label="אוויר" value={`${beach.forecast.temperature}°`} />
-           <HeroStat icon="Droplets" label="מים" value={`${beach.forecast.waterTemp}°`} />
-           <HeroStat icon="Waves" label="גלים" value={`${beach.forecast.waveHeight}m`} />
-           <HeroStat icon="Wind" label="רוח" value={`${beach.forecast.windSpeed}`} unit="km/h" />
+           <HeroStat testId="hero-airTemperature" icon="Thermometer" label="אוויר" value={formatValue('temperature', beach.forecast.temperature)} />
+           <HeroStat testId="hero-waterTemperature" icon="Droplets" label="מים" value={formatValue('temperature', beach.forecast.waterTemp)} />
+           <HeroStat testId="hero-waveHeight" icon="Waves" label="גלים" value={formatValue('waveHeight', beach.forecast.waveHeight)} />
+           <HeroStat testId="hero-windSpeed" icon="Wind" label="רוח" value={formatValue('windSpeed', beach.forecast.windSpeed)} />
         </div>
       </div>
     </motion.div>
   );
 }
 
-function HeroStat({ icon, label, value, unit }: { icon: string, label: string, value: string, unit?: string }) {
+function HeroStat({ icon, label, value, testId }: { icon: string, label: string, value: string, testId: string }) {
   const Icon = (LucideIcons as any)[icon];
   return (
     <div className="bg-white/40 p-4 rounded-3xl text-center border border-white flex flex-col items-center">
       <div className="text-sea-500 mb-2">
         <Icon size={18} />
       </div>
-      <div className="text-sm font-black text-slate-800">{value}</div>
-      <div className="text-[9px] font-black text-slate-400 uppercase truncate mt-0.5 tracking-tight">
-        {label} {unit && <span className="opacity-50 lowercase">{unit}</span>}
-      </div>
+      <div data-testid={testId} className="text-sm font-black text-slate-800">{value}</div>
+      <div className="text-[9px] font-black text-slate-400 uppercase truncate mt-0.5 tracking-tight">{label}</div>
     </div>
   );
 }

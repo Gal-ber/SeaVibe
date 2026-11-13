@@ -1,4 +1,16 @@
 {
   "dataBadge.mock": "Sample data",
-  "dataBadge.unavailable": "Data unavailable"
+  "dataBadge.unavailable": "Data unavailable",
+  "value.unavailable": "Not available",
+  "unit.celsius": "°",
+  "unit.kmh": "km/h",
+  "unit.meters": "m",
+  "score.insufficient": "Not enough data",
+  "score.insufficientHint": "A value needed for the score is missing, so no score is shown.",
+  "data.loading": "Loading data…",
+  "data.error": "Data is not available right now.",
+  "data.retry": "Try again",
+  "table.now": "Now",
+  "nav.back": "Back",
+  "insight.insufficient": "Not enough data for an insight about the coming hours."
 }

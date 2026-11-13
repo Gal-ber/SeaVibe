@@ -1,4 +1,16 @@
 {
   "dataBadge.mock": "נתוני דוגמה",
-  "dataBadge.unavailable": "נתונים לא זמינים"
+  "dataBadge.unavailable": "נתונים לא זמינים",
+  "value.unavailable": "לא זמין",
+  "unit.celsius": "°",
+  "unit.kmh": "קמ״ש",
+  "unit.meters": "מ׳",
+  "score.insufficient": "אין מספיק מידע",
+  "score.insufficientHint": "חסר נתון שנדרש לחישוב הציון, ולכן לא מוצג ציון.",
+  "data.loading": "טוען נתונים…",
+  "data.error": "הנתונים לא זמינים כרגע.",
+  "data.retry": "נסה שוב",
+  "table.now": "עכשיו",
+  "nav.back": "חזרה",
+  "insight.insufficient": "אין מספיק נתונים לתובנה על השעות הקרובות."
 }

@@ -2,23 +2,27 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+// ניתוח הרוח לפי פעילות: מוסיף להסבר משפט על ההשפעה על הפעילות שנבחרה.
+// מגמת הרוח עצמה מחושבת מהנתונים ב-src/engine/forecastView.ts.
 
 import { ActivityId, BeachForecast, WindAnalysis } from '../types';
 
 export function analyzeWindForActivity(activity: ActivityId, forecast: BeachForecast): WindAnalysis {
-  const { windSpeed, windAnalysis } = forecast;
-  
-  if (!windAnalysis) {
+  const { windAnalysis } = forecast;
+
+  // אין נתוני רוח: לא ממציאים כיוון או עוצמה
+  if (!windAnalysis || windAnalysis.speed === null) {
     return {
-      speed: windSpeed,
-      direction: 'מערבית',
+      speed: null,
+      direction: null,
       trend: 'stable',
-      explanation: 'אין מספיק נתוני רוח לניתוח מעמיק.',
+      explanation: 'אין מספיק נתוני רוח לניתוח.',
       impact: 'לא ידוע'
     };
   }
 
-  const { trend, speed, direction, changeTime, explanation } = windAnalysis;
+  const { trend, explanation } = windAnalysis;
+  const speed = windAnalysis.speed;
 
   let activityImpact = '';
   switch (activity) {

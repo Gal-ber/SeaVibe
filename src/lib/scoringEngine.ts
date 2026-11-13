@@ -6,15 +6,16 @@
 import { BeachForecast, ActivityId, BeachRecommendation } from '../types';
 import { TEMPLATES } from './recommendationTemplates';
 
-/**
- * Calculates a recommendation score (0-100) and status for a specific activity
- * based on marine and weather forecast data.
- */
+// מנוע הציון: מחשב ציון התאמה (0–100) לפעילות לפי נתוני השעה הנוכחית.
+// אם חסר נתון קריטי (גלים, רוח או טמפ׳ אוויר) מוחזר null, והמסך מציג "אין מספיק מידע".
+// נתון לא קריטי שחסר (UV, גשם) פשוט לא נכנס לחישוב ולא מוצג כגורם.
+// מתי נוגעים: שלב 2 (ספי ציון). רק דרך הסוכן.
 export function getRecommendation(
   forecast: BeachForecast,
   selectedActivity: ActivityId
-): BeachRecommendation {
-  const { waveHeight, windSpeed, uvIndex, temperature, precipitationChance } = forecast;
+): BeachRecommendation | null {
+  const { waveHeight, windSpeed, temperature, uvIndex, precipitationChance } = forecast;
+  if (waveHeight === null || windSpeed === null || temperature === null) return null;
   
   let score = 50; // Base score
   const riskFlags: string[] = [];
@@ -25,8 +26,8 @@ export function getRecommendation(
   };
 
   // 1. Weather Penalty (Global)
-  if (precipitationChance > 40) score -= 30;
-  if (uvIndex >= 8) addRisk('קרינה חזקה');
+  if (precipitationChance !== null && precipitationChance > 40) score -= 30;
+  if (uvIndex !== null && uvIndex >= 8) addRisk('קרינה חזקה');
   if (temperature > 32) addRisk('עומס חום כבד');
   if (temperature < 15) addRisk('קר במיוחד');
 
@@ -124,11 +125,15 @@ export function getRecommendation(
   const negativeFactors: string[] = [];
 
   // Weather Factors
-  if (precipitationChance < 10) positiveFactors.push('אין סיכוי משמעותי לגשם');
-  else if (precipitationChance > 40) negativeFactors.push('סיכוי גבוה לגשם');
+  if (precipitationChance !== null) {
+    if (precipitationChance < 10) positiveFactors.push('אין סיכוי משמעותי לגשם');
+    else if (precipitationChance > 40) negativeFactors.push('סיכוי גבוה לגשם');
+  }
 
-  if (uvIndex < 5) positiveFactors.push('קרינה נמוכה ונוחה');
-  else if (uvIndex >= 8) negativeFactors.push('UV גבוה בצהריים');
+  if (uvIndex !== null) {
+    if (uvIndex < 5) positiveFactors.push('קרינה נמוכה ונוחה');
+    else if (uvIndex >= 8) negativeFactors.push('UV גבוה בצהריים');
+  }
 
   if (temperature >= 22 && temperature <= 28) positiveFactors.push('הטמפרטורה נעימה');
   else if (temperature > 32) negativeFactors.push('עומס חום כבד');
@@ -152,13 +157,14 @@ export function getRecommendation(
   const { windAnalysis } = forecast;
   if (windAnalysis) {
     if (windAnalysis.trend === 'stronger') {
-      addRisk('רוח מתחזקת בצהריים');
-      negativeFactors.push('הרוח מתחזקת אחרי הצהריים');
+      addRisk('רוח מתחזקת בהמשך היום');
+      negativeFactors.push('הרוח מתחזקת בהמשך היום');
       if (selectedActivity === 'sup') addRisk('פחות נוח ל-SUP אחר הצהריים');
       if (selectedActivity === 'kids' || selectedActivity === 'swim') addRisk('עדיף להגיע מוקדם לפני שהרוח עולה');
     }
-    if (windAnalysis.speed > 20) addRisk('רוח חזקה יחסית');
-    if (windAnalysis.direction.toString().includes('דרום') || windAnalysis.direction.toString().includes('צפון')) {
+    if (windAnalysis.speed !== null && windAnalysis.speed > 20) addRisk('רוח חזקה יחסית');
+    const direction = windAnalysis.direction ?? '';
+    if (direction.includes('דרום') || direction.includes('צפון')) {
        if (selectedActivity === 'sail' || selectedActivity === 'surf') addRisk('רוח צד שעשויה להפריע');
     }
   }
@@ -168,7 +174,7 @@ export function getRecommendation(
   const shortExplanation = template.explanations[0];
 
   // 4. Summary Construction
-  const bestTime = getBestTimeWindow(selectedActivity, forecast);
+  const bestTime = getBestTimeWindow(selectedActivity, temperature);
   let summary = `בגדול, הבוקר נראה ${status === 'excellent' || status === 'good' ? 'טוב' : 'פחות אידיאלי'} ל${template.headlines[0].split(',')[0]}. `;
   
   if (positiveFactors.length > 0) {
@@ -185,8 +191,8 @@ export function getRecommendation(
     headline,
     shortExplanation,
     bestTimeWindow: bestTime,
-    suitableFor: getSuitableActivities(forecast),
-    notIdealFor: getNotIdealActivities(forecast),
+    suitableFor: getSuitableActivities(waveHeight, windSpeed),
+    notIdealFor: getNotIdealActivities(waveHeight, windSpeed),
     riskFlags: [...riskFlags, ...(template.caution || [])],
     positiveFactors,
     negativeFactors,
@@ -197,34 +203,34 @@ export function getRecommendation(
 /**
  * Heuristic to determine the best time window based on activity and current forecast.
  */
-function getBestTimeWindow(activity: ActivityId, forecast: BeachForecast): string {
+function getBestTimeWindow(activity: ActivityId, temperature: number): string {
   // In a real app, this would use hourly data. 
   // For V0, we provide general advice based on typical Israeli patterns.
   if (activity === 'surf' || activity === 'sup' || activity === 'swim') {
     return '06:00 - 10:00 (הכי רגוע)';
   }
   if (activity === 'beach' || activity === 'kids') {
-    if (forecast.temperature > 28) return '07:00 - 11:00 או אחרי 16:00';
+    if (temperature > 28) return '07:00 - 11:00 או אחרי 16:00';
     return '10:00 - 15:00';
   }
   return 'כל היום';
 }
 
-function getSuitableActivities(forecast: BeachForecast): ActivityId[] {
+function getSuitableActivities(waveHeight: number, windSpeed: number): ActivityId[] {
   const activities: ActivityId[] = ['beach', 'swim', 'kids', 'surf', 'sup', 'sail'];
   return activities.filter(id => {
     // Simple filter: if wave or wind is too high, most aren't suitable
-    if (forecast.waveHeight > 1.2 && id !== 'surf') return false;
-    if (forecast.windSpeed > 25 && (id === 'sup' || id === 'kids')) return false;
+    if (waveHeight > 1.2 && id !== 'surf') return false;
+    if (windSpeed > 25 && (id === 'sup' || id === 'kids')) return false;
     return true;
   });
 }
 
-function getNotIdealActivities(forecast: BeachForecast): ActivityId[] {
+function getNotIdealActivities(waveHeight: number, windSpeed: number): ActivityId[] {
   const notIdeal: ActivityId[] = [];
-  if (forecast.waveHeight < 0.3) notIdeal.push('surf');
-  if (forecast.waveHeight > 0.8) notIdeal.push('kids', 'swim');
-  if (forecast.windSpeed > 20) notIdeal.push('sup', 'beach');
+  if (waveHeight < 0.3) notIdeal.push('surf');
+  if (waveHeight > 0.8) notIdeal.push('kids', 'swim');
+  if (windSpeed > 20) notIdeal.push('sup', 'beach');
   return notIdeal;
 }
 

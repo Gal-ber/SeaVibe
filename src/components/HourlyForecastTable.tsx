@@ -5,20 +5,25 @@
 
 import { HourlyForecast, SelectedParameter } from '../types';
 import { motion } from 'motion/react';
+import { formatValue, UNAVAILABLE } from '../lib/formatValue';
+import texts from '../../config/texts/he.json';
+
+// הטבלה השעתית: כל שעות היום מאותה סדרה שממנה נלקחים ערכי הכרטיס. השורה של עכשיו מסומנת.
 
 interface HourlyForecastTableProps {
   data: HourlyForecast[];
   selectedParameter: SelectedParameter;
+  currentTime: string | null;
 }
 
-export default function HourlyForecastTable({ data, selectedParameter }: HourlyForecastTableProps) {
+export default function HourlyForecastTable({ data, selectedParameter, currentTime }: HourlyForecastTableProps) {
   const getColumns = () => {
     const baseCols = [
       { id: 'time', label: 'שעה' },
-      { id: 'airTemperature', label: 'טמפ׳ אוויר', unit: '°C' },
-      { id: 'waterTemperature', label: 'טמפ׳ מים', unit: '°C' },
-      { id: 'wind', label: 'רוח', isWind: true },
-      { id: 'waveHeight', label: 'גובה גלים', unit: 'מ׳' },
+      { id: 'airTemperature', label: 'טמפ׳ אוויר' },
+      { id: 'waterTemperature', label: 'טמפ׳ מים' },
+      { id: 'wind', label: 'רוח' },
+      { id: 'waveHeight', label: 'גובה גלים' },
     ];
 
     // Reorder: selected first (after time)
@@ -64,18 +69,19 @@ export default function HourlyForecastTable({ data, selectedParameter }: HourlyF
               <motion.tr
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: rowIndex * 0.05 }}
+                transition={{ delay: Math.min(rowIndex, 10) * 0.03 }}
                 key={row.time}
-                className="hover:bg-slate-50/50 transition-colors"
+                data-testid={row.time === currentTime ? 'current-hour-row' : undefined}
+                className={`hover:bg-slate-50/50 transition-colors ${row.time === currentTime ? 'bg-amber-50' : ''}`}
               >
                 {columns.map((col) => (
                   <td
                     key={col.id}
-                    className={`px-4 py-4 text-sm border-b border-slate-50 ${
+                    className={`px-4 py-4 text-sm whitespace-nowrap border-b border-slate-50 ${
                       col.id === selectedParameter ? 'font-extrabold text-sea-700 bg-sea-50/10' : 'text-slate-600 font-medium'
                     }`}
                   >
-                    {renderCellValue(row, col)}
+                    {renderCellValue(row, col, row.time === currentTime)}
                   </td>
                 ))}
               </motion.tr>
@@ -87,23 +93,28 @@ export default function HourlyForecastTable({ data, selectedParameter }: HourlyF
   );
 }
 
-function renderCellValue(row: HourlyForecast, col: any) {
+function renderCellValue(row: HourlyForecast, col: { id: string }, isNow: boolean) {
   switch (col.id) {
     case 'time':
-      return <span className="font-bold text-slate-400">{row.time}</span>;
+      return (
+        <span className="font-bold text-slate-400">
+          <bdi>{row.time}</bdi>
+          {isNow && <span className="ms-2 text-amber-600">{texts['table.now']}</span>}
+        </span>
+      );
     case 'airTemperature':
-      return <span>{row.airTemperature}{col.unit}</span>;
+      return <span data-testid="cell-airTemperature">{formatValue('temperature', row.airTemperature)}</span>;
     case 'waterTemperature':
-      return <span>{row.waterTemperature}{col.unit}</span>;
+      return <span data-testid="cell-waterTemperature">{formatValue('temperature', row.waterTemperature)}</span>;
     case 'wind':
       return (
         <div className="flex flex-col">
-          <span>{row.windDirection}</span>
-          <span className="text-[10px] font-bold text-slate-400">{row.windSpeed} קמ״ש</span>
+          <span>{row.windDirection ?? UNAVAILABLE}</span>
+          <span data-testid="cell-windSpeed" className="text-[10px] font-bold text-slate-400">{formatValue('windSpeed', row.windSpeed)}</span>
         </div>
       );
     case 'waveHeight':
-      return <span>{row.waveHeight} {col.unit}</span>;
+      return <span data-testid="cell-waveHeight">{formatValue('waveHeight', row.waveHeight)}</span>;
     default:
       return null;
   }

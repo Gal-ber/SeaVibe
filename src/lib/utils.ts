@@ -40,12 +40,12 @@ export function getBackgroundState(beach: Beach): BackgroundState {
   if (hour >= 18 && hour <= 19) return 'sunset_sea';
 
   // Weather conditions
-  if (precipitationChance > 20) return 'calm_cloudy_day';
-  
-  // Sea conditions
-  if (waveHeight > 1.2) return 'rough_sea_day';
-  if (waveHeight > 0.6) return 'wavy_sunny_day';
-  if (windSpeed > 25) return 'windy_day';
+  if (precipitationChance !== null && precipitationChance > 20) return 'calm_cloudy_day';
+
+  // Sea conditions (נתון חסר לא משנה את הרקע)
+  if (waveHeight !== null && waveHeight > 1.2) return 'rough_sea_day';
+  if (waveHeight !== null && waveHeight > 0.6) return 'wavy_sunny_day';
+  if (windSpeed !== null && windSpeed > 25) return 'windy_day';
 
   // Default
   return 'calm_sunny_day';

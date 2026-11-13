@@ -10,9 +10,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import { BEACHES, ACTIVITIES } from './data/beaches';
-import { ActivityId, UserSettings } from './types';
+import { ActivityId, Beach, UserSettings } from './types';
 import { getRecommendation } from './lib/scoringEngine';
-import { loadForecasts } from './engine/dataGateway';
+import { useForecastData } from './lib/useForecastData';
+import { buildBeachForecast } from './engine/forecastView';
 import texts from '../config/texts/he.json';
 import { getDistance, getBackgroundState } from './lib/utils';
 import ActivitySelector from './components/ActivitySelector';
@@ -61,8 +62,12 @@ export default function App() {
   }, [settings]);
 
   // כל התחזיות מגיעות משער הנתונים. במצב mock אין שום פנייה לאינטרנט.
-  const forecastResult = useMemo(() => loadForecasts(), []);
-  const forecasts = forecastResult.forecasts;
+  // כל חוף מקבל סדרה שעתית אחת, והכרטיס מציג את השורה של השעה הנוכחית.
+  const { status: dataStatus, result: forecastResult, reload: reloadData, now } = useForecastData();
+  const beachesWithForecast: Beach[] = useMemo(() => BEACHES.map(b => ({
+    ...b,
+    forecast: buildBeachForecast(forecastResult.data?.series[b.id], forecastResult.mode, now),
+  })), [forecastResult, now]);
 
   const handleOnboardingComplete = (data: { favorites: string[], favoriteActivities: ActivityId[], locationPermission: boolean }) => {
     setSettings({
@@ -87,14 +92,10 @@ export default function App() {
   };
 
   const selectedBeach = useMemo(() => {
-    const beach = BEACHES.find(b => b.id === (selectedBeachId || settings.primaryFavorite));
+    const beach = beachesWithForecast.find(b => b.id === (selectedBeachId || settings.primaryFavorite));
     if (!beach) return null;
-    return {
-      ...beach, 
-      forecast: forecasts[beach.id] || beach.forecast,
-      isFavorite: settings.favorites.includes(beach.id)
-    };
-  }, [selectedBeachId, settings.primaryFavorite, settings.favorites, forecasts]);
+    return { ...beach, isFavorite: settings.favorites.includes(beach.id) };
+  }, [selectedBeachId, settings.primaryFavorite, settings.favorites, beachesWithForecast]);
 
   const currentRecommendation = useMemo(() => {
     if (!selectedBeach) return null;
@@ -102,13 +103,10 @@ export default function App() {
   }, [selectedBeach, selectedActivity]);
 
   const favoriteBeaches = useMemo(() => {
-    return BEACHES
-      .filter(b => settings.favorites.includes(b.id))
-      .map(b => ({
-        ...b,
-        forecast: forecasts[b.id] || b.forecast
-      }));
-  }, [settings.favorites, forecasts]);
+    return beachesWithForecast.filter(b => settings.favorites.includes(b.id));
+  }, [settings.favorites, beachesWithForecast]);
+
+  const detailedBeach = beachesWithForecast.find(b => b.id === detailedBeachId) || null;
 
   const bgState = useMemo(() => {
     return selectedBeach ? getBackgroundState(selectedBeach) : 'calm_sunny_day';
@@ -157,7 +155,7 @@ export default function App() {
             </div>
             <span className="text-xl font-black text-slate-900 tracking-tight">SeaVibes</span>
             <span className="ms-auto text-[11px] font-bold text-slate-700 bg-sand-200 px-2 py-0.5 rounded-full">
-              {forecastResult.mode === 'mock' ? texts['dataBadge.mock'] : texts['dataBadge.unavailable']}
+              {forecastResult.mode === 'mock' && dataStatus !== 'unavailable' ? texts['dataBadge.mock'] : texts['dataBadge.unavailable']}
             </span>
           </div>
           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">מה הווייב של הים היום?</p>
@@ -181,6 +179,7 @@ export default function App() {
             </div>
             <FavoriteBeachesStrip 
               favorites={favoriteBeaches} 
+              selectedActivity={selectedActivity}
               currentBeachId={selectedBeachId || ''} 
               onSelect={setSelectedBeachId} 
             />
@@ -189,10 +188,22 @@ export default function App() {
 
         {/* 4. Main Recommendation Hero */}
         <AnimatePresence mode="wait">
-          {selectedBeach && currentRecommendation ? (
+          {selectedBeach && dataStatus !== 'ready' ? (
+            <div key="data-status" className="py-16 text-center space-y-4" role="status">
+              <p className="text-lg font-black text-slate-700">
+                {dataStatus === 'loading' ? texts['data.loading'] : texts['data.error']}
+              </p>
+              {dataStatus === 'unavailable' && (
+                <button onClick={reloadData} className="px-6 py-3 bg-sea-600 text-white rounded-2xl font-extrabold">
+                  {texts['data.retry']}
+                </button>
+              )}
+            </div>
+          ) : selectedBeach ? (
             <div key={selectedBeach.id} className="mb-12">
               <CurrentBeachHero 
                 beach={selectedBeach} 
+                isMock={forecastResult.mode === 'mock'}
                 recommendation={currentRecommendation}
                 selectedActivity={selectedActivity}
                 isFavorite={selectedBeach.isFavorite}
@@ -254,13 +265,14 @@ export default function App() {
 
       {/* Detailed View Overlay */}
       <AnimatePresence>
-        {detailedBeachId && (
+        {detailedBeach && (
           <DetailedBeachView 
-            beach={BEACHES.find(b => b.id === detailedBeachId)!}
-            recommendation={getRecommendation(forecasts[detailedBeachId] || BEACHES.find(b => b.id === detailedBeachId)!.forecast, selectedActivity)}
+            beach={detailedBeach}
+            isMock={forecastResult.mode === 'mock'}
+            recommendation={getRecommendation(detailedBeach.forecast, selectedActivity)}
             selectedActivity={selectedActivity}
-            isFavorite={settings.favorites.includes(detailedBeachId)}
-            onToggleFavorite={() => handleToggleFavorite(detailedBeachId)}
+            isFavorite={settings.favorites.includes(detailedBeach.id)}
+            onToggleFavorite={() => handleToggleFavorite(detailedBeach.id)}
             onClose={() => setDetailedBeachId(null)} 
           />
         )}

@@ -14,8 +14,8 @@ export interface Activity {
 export type WindTrend = 'stable' | 'stronger' | 'weaker' | 'shifting';
 
 export interface WindAnalysis {
-  speed: number;
-  direction: string;
+  speed: number | null;
+  direction: string | null;
   trend: WindTrend;
   changeTime?: string;
   impact: string;
@@ -28,31 +28,34 @@ export type SelectedParameter =
   | "wind"
   | "waveHeight";
 
+// שורה אחת בטבלה השעתית. null = נתון חסר ("לא זמין"), לעולם לא 0.
 export interface HourlyForecast {
   time: string;
-  airTemperature: number;
-  waterTemperature: number;
-  windSpeed: number;
-  windDirection: string;
-  waveHeight: number;
-  wavePeriod?: number;
-  uvIndex?: number;
-  precipitationChance?: number;
+  airTemperature: number | null;
+  waterTemperature: number | null;
+  windSpeed: number | null;
+  windDirection: string | null;
+  waveHeight: number | null;
+  wavePeriod: number | null;
+  uvIndex: number | null;
+  precipitationChance: number | null;
 }
 
+// התחזית של חוף: הערכים של השעה הנוכחית, יחד עם כל הסדרה השעתית שממנה נלקחו.
 export interface BeachForecast {
-  waveHeight: number; 
-  wavePeriod: number; 
-  windSpeed: number; 
-  windDirection: string | number;
-  temperature: number; 
-  waterTemp: number;
-  uvIndex: number;
-  precipitationChance: number;
-  source?: "open-meteo" | "mock";
-  fetchedAt?: string;
-  hourlyForecast?: HourlyForecast[];
-  windAnalysis?: WindAnalysis;
+  currentTime: string | null;
+  waveHeight: number | null;
+  wavePeriod: number | null;
+  windSpeed: number | null;
+  windDirection: string | null;
+  temperature: number | null;
+  waterTemp: number | null;
+  uvIndex: number | null;
+  precipitationChance: number | null;
+  source: 'mock' | 'live';
+  fetchedAt: string | null;
+  hourlyForecast: HourlyForecast[];
+  windAnalysis: WindAnalysis | null;
 }
 
 export type BackgroundState =
@@ -72,12 +75,19 @@ export interface UserSettings {
   locationPermissionGranted: boolean;
 }
 
-export interface Beach {
+// חוף מהקטלוג (config/beaches.json), בלי תחזית.
+export interface BeachInfo {
   id: string;
   name: string;
+  nameEn: string;
   city: string;
+  cityEn: string;
   lat: number;
   lng: number;
+}
+
+// חוף יחד עם התחזית שלו, כמו שהמסכים מקבלים אותו.
+export interface Beach extends BeachInfo {
   forecast: BeachForecast;
   isFavorite?: boolean;
 }

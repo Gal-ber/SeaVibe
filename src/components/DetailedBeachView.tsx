@@ -19,30 +19,39 @@ import { MOCK_FIELD_REPORTS } from '../data/mockFieldReports';
 import { ACTIVITIES } from '../data/beaches';
 import DynamicSeaBackground from './DynamicSeaBackground';
 import { getBackgroundState } from '../lib/utils';
+import { formatValue } from '../lib/formatValue';
+import texts from '../../config/texts/he.json';
+
+// מסך הפירוט של חוף: סיכום ההמלצה, דיווחי שטח, טבלה שעתית, ניתוח רוח והסבר הציון.
+// כל המספרים כאן מאותה סדרה שעתית כמו הכרטיס במסך הראשי.
 
 interface DetailedBeachViewProps {
   beach: Beach;
-  recommendation: BeachRecommendation;
+  recommendation: BeachRecommendation | null;
+  isMock: boolean;
   selectedActivity: ActivityId;
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onClose: () => void;
 }
 
-export default function DetailedBeachView({ beach, recommendation, selectedActivity, isFavorite, onToggleFavorite, onClose }: DetailedBeachViewProps) {
+export default function DetailedBeachView({ beach, recommendation, isMock, selectedActivity, isFavorite, onToggleFavorite, onClose }: DetailedBeachViewProps) {
   const [selectedParam, setSelectedParam] = useState<SelectedParameter>('waveHeight');
   const [localReports, setLocalReports] = useState<FieldReport[]>(MOCK_FIELD_REPORTS);
 
   const parameterOptions: { id: SelectedParameter; label: string; icon: string; value: string }[] = [
-    { id: 'waveHeight', label: 'גובה גלים', icon: 'Waves', value: `${beach.forecast.waveHeight} מ׳` },
-    { id: 'wind', label: 'רוח', icon: 'Wind', value: `${beach.forecast.windSpeed} km/h` },
-    { id: 'airTemperature', label: 'טמפ׳ אוויר', icon: 'Thermometer', value: `${beach.forecast.temperature}°` },
-    { id: 'waterTemperature', label: 'טמפ׳ מים', icon: 'Droplets', value: `${beach.forecast.waterTemp}°` },
+    { id: 'waveHeight', label: 'גובה גלים', icon: 'Waves', value: formatValue('waveHeight', beach.forecast.waveHeight) },
+    { id: 'wind', label: 'רוח', icon: 'Wind', value: formatValue('windSpeed', beach.forecast.windSpeed) },
+    { id: 'airTemperature', label: 'טמפ׳ אוויר', icon: 'Thermometer', value: formatValue('temperature', beach.forecast.temperature) },
+    { id: 'waterTemperature', label: 'טמפ׳ מים', icon: 'Droplets', value: formatValue('temperature', beach.forecast.waterTemp) },
   ];
 
+  // התובנה מסתכלת על השעות מעכשיו ועד סוף היום
+  const hours = beach.forecast.hourlyForecast;
+  const nowIndex = hours.findIndex((h) => h.time === beach.forecast.currentTime);
   const hourlyInsight = generateHourlyInsight(
     selectedParam,
-    beach.forecast.hourlyForecast || [],
+    nowIndex >= 0 ? hours.slice(nowIndex) : hours,
     selectedActivity
   );
 
@@ -85,6 +94,7 @@ export default function DetailedBeachView({ beach, recommendation, selectedActiv
       <div className="sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <button 
           onClick={onClose}
+          aria-label={texts['nav.back']}
           className="w-12 h-12 rounded-[1.25rem] bg-white/80 backdrop-blur-md flex items-center justify-center text-slate-400 border border-white/50 shadow-sm hover:bg-white transition-colors"
         >
           <LucideIcons.ChevronRight size={24} />
@@ -106,6 +116,19 @@ export default function DetailedBeachView({ beach, recommendation, selectedActiv
       <div className="max-w-2xl mx-auto p-6 space-y-12 mt-4 relative z-10">
         {/* Main Recommendation Summary */}
         <section className="bg-white/90 backdrop-blur-xl rounded-[3rem] p-8 border border-white shadow-2xl shadow-slate-200/50">
+          {/* מקור הנתונים: במצב mock מוצג "נתוני דוגמה" במקום זמן עדכון */}
+          {isMock && (
+            <div className="mb-4 inline-block text-[11px] font-bold text-slate-700 bg-sand-200 px-2 py-0.5 rounded-full">
+              {texts['dataBadge.mock']}
+            </div>
+          )}
+          {!recommendation ? (
+            <div className="text-center py-4">
+              <h3 className="font-black text-2xl text-slate-900 mb-2">{texts['score.insufficient']}</h3>
+              <p className="text-slate-500 font-medium">{texts['score.insufficientHint']}</p>
+            </div>
+          ) : (
+          <>
           <div className="flex items-center gap-6 mb-8">
             <div className="relative">
               <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-white font-black text-3xl shadow-xl shadow-current-color/20 ${getStatusBg(recommendation.status)}`}>
@@ -123,6 +146,8 @@ export default function DetailedBeachView({ beach, recommendation, selectedActiv
           <p className="text-slate-500 font-medium leading-relaxed text-lg italic pr-4 border-r-2 border-slate-100">
             "{recommendation.shortExplanation}"
           </p>
+          </>
+          )}
         </section>
 
         {/* Community Field Reports Section */}
@@ -161,7 +186,8 @@ export default function DetailedBeachView({ beach, recommendation, selectedActiv
             <HourlyInsight insight={hourlyInsight} />
             <div className="mt-6">
               <HourlyForecastTable 
-                data={beach.forecast.hourlyForecast || []} 
+                data={hours} 
+                currentTime={beach.forecast.currentTime}
                 selectedParameter={selectedParam} 
               />
             </div>
@@ -175,6 +201,7 @@ export default function DetailedBeachView({ beach, recommendation, selectedActiv
         </section>
 
         {/* Why this recommendation section */}
+        {recommendation && (
         <section className="space-y-6">
           <SectionHeader icon="Info" title="למה קיבלתי את ההמלצה הזו?" subtitle="אלגוריתם הציון" />
           
@@ -222,6 +249,7 @@ export default function DetailedBeachView({ beach, recommendation, selectedActiv
             </div>
           </div>
         </section>
+        )}
 
         {/* Map Placeholder */}
         <section className="bg-white/60 backdrop-blur-lg rounded-[2.5rem] p-12 text-center border-2 border-dashed border-slate-200 group">

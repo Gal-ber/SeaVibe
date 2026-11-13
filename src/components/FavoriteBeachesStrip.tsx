@@ -3,30 +3,33 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Beach } from '../types';
+// רצועת החופים המועדפים: לכל חוף ציון אמיתי מהמנוע לפעילות שנבחרה, וגלים וטמפ׳ של השעה הנוכחית.
+import { ActivityId, Beach } from '../types';
+import { getRecommendation } from '../lib/scoringEngine';
+import { formatValue, UNAVAILABLE } from '../lib/formatValue';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
 
 interface FavoriteBeachesStripProps {
   favorites: Beach[];
+  selectedActivity: ActivityId;
   currentBeachId: string;
   onSelect: (beachId: string) => void;
 }
 
-export default function FavoriteBeachesStrip({ favorites, currentBeachId, onSelect }: FavoriteBeachesStripProps) {
+export default function FavoriteBeachesStrip({ favorites, selectedActivity, currentBeachId, onSelect }: FavoriteBeachesStripProps) {
   if (favorites.length === 0) return null;
 
   return (
     <div className="flex gap-4 overflow-x-auto no-scrollbar px-1 py-2 scroll-smooth" dir="rtl">
       {favorites.map(beach => {
         const isActive = currentBeachId === beach.id;
-        // Mock vibe score based on existing forecast data for variation
-        const vibeScore = Math.floor((beach.forecast.waveHeight / 2) * 50) + 30; // Dummy logic
-        const clampedScore = Math.min(Math.max(vibeScore, 45), 98);
+        const recommendation = getRecommendation(beach.forecast, selectedActivity);
 
         return (
           <button
             key={beach.id}
+            data-testid={`favorite-${beach.id}`}
             onClick={() => onSelect(beach.id)}
             className={`flex-shrink-0 w-36 p-5 rounded-[2rem] border-2 transition-all text-right relative ${
               isActive
@@ -45,7 +48,7 @@ export default function FavoriteBeachesStrip({ favorites, currentBeachId, onSele
               <div className="mt-4 flex items-end justify-between">
                 <div className="flex flex-col">
                   <span className={`text-xl font-black leading-none ${isActive ? 'text-white' : 'text-sea-600'}`}>
-                    {clampedScore}
+                    {recommendation ? recommendation.score : UNAVAILABLE}
                   </span>
                   <span className={`text-[8px] font-black uppercase tracking-widest ${isActive ? 'text-sea-100/70' : 'text-slate-400'}`}>
                     וייב
@@ -55,11 +58,11 @@ export default function FavoriteBeachesStrip({ favorites, currentBeachId, onSele
                 <div className={`flex flex-col items-end gap-0.5 ${isActive ? 'text-white/80' : 'text-slate-400'}`}>
                   <div className="flex items-center gap-1">
                     <LucideIcons.Waves size={10} />
-                    <span className="text-[10px] font-bold">{beach.forecast.waveHeight}m</span>
+                    <span className="text-[10px] font-bold">{formatValue('waveHeight', beach.forecast.waveHeight)}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <LucideIcons.Umbrella size={10} />
-                    <span className="text-[10px] font-bold">{beach.forecast.temperature}°</span>
+                    <span className="text-[10px] font-bold">{formatValue('temperature', beach.forecast.temperature)}</span>
                   </div>
                 </div>
               </div>
