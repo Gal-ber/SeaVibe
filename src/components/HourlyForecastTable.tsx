@@ -12,14 +12,16 @@ import texts from '../../config/texts/he.json';
 
 interface HourlyForecastTableProps {
   data: HourlyForecast[];
+  scores: { time: string; score: number | null }[];
   selectedParameter: SelectedParameter;
   currentTime: string | null;
 }
 
-export default function HourlyForecastTable({ data, selectedParameter, currentTime }: HourlyForecastTableProps) {
+export default function HourlyForecastTable({ data, scores, selectedParameter, currentTime }: HourlyForecastTableProps) {
   const getColumns = () => {
     const baseCols = [
       { id: 'time', label: 'שעה' },
+      { id: 'score', label: texts['table.score'] },
       { id: 'airTemperature', label: 'טמפ׳ אוויר' },
       { id: 'waterTemperature', label: 'טמפ׳ מים' },
       { id: 'wind', label: 'רוח' },
@@ -27,21 +29,10 @@ export default function HourlyForecastTable({ data, selectedParameter, currentTi
     ];
 
     // Reorder: selected first (after time)
-    if (selectedParameter === 'wind') {
-      return [
-        baseCols[0],
-        baseCols[3],
-        baseCols[1],
-        baseCols[2],
-        baseCols[4],
-      ];
-    }
-    
-    const selectedIndex = baseCols.findIndex(c => c.id === selectedParameter);
-    const selectedCol = baseCols[selectedIndex];
-    const otherCols = baseCols.filter((_, i) => i !== 0 && i !== selectedIndex);
-    
-    return [baseCols[0], selectedCol, ...otherCols];
+    // שעה וציון קבועים בהתחלה, אחריהם העמודה שנבחרה, ואז השאר
+    const selectedCol = baseCols.find(c => c.id === selectedParameter)!;
+    const otherCols = baseCols.filter(c => c.id !== 'time' && c.id !== 'score' && c.id !== selectedParameter);
+    return [baseCols[0], baseCols[1], selectedCol, ...otherCols];
   };
 
   const columns = getColumns();
@@ -81,7 +72,9 @@ export default function HourlyForecastTable({ data, selectedParameter, currentTi
                       col.id === selectedParameter ? 'font-extrabold text-sea-700 bg-sea-50/10' : 'text-slate-600 font-medium'
                     }`}
                   >
-                    {renderCellValue(row, col, row.time === currentTime)}
+                    {col.id === 'score'
+                      ? <span data-testid="cell-score" className="font-extrabold text-slate-800">{scores.find(s => s.time === row.time)?.score ?? UNAVAILABLE}</span>
+                      : renderCellValue(row, col, row.time === currentTime)}
                   </td>
                 ))}
               </motion.tr>

@@ -5,7 +5,7 @@
 
 // רצועת החופים המועדפים: לכל חוף ציון אמיתי מהמנוע לפעילות שנבחרה, וגלים וטמפ׳ של השעה הנוכחית.
 import { ActivityId, Beach } from '../types';
-import { getRecommendation } from '../lib/scoringEngine';
+import { getRecommendation } from '../engine/recommend';
 import { formatValue, UNAVAILABLE } from '../lib/formatValue';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';

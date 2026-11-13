@@ -1,9 +1,8 @@
-// בדיקות לבניית התחזית: הכרטיס מקבל את השורה של השעה הנוכחית, ונתון חסר לא הופך לציון.
+// בדיקות לבניית התחזית: הכרטיס מקבל את השורה של השעה הנוכחית, ונתון חסר נשאר null.
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { normalizeForecastFile } from '../../src/engine/normalize';
 import { buildBeachForecast, israelHour } from '../../src/engine/forecastView';
-import { getRecommendation } from '../../src/lib/scoringEngine';
 
 const data = normalizeForecastFile(JSON.parse(readFileSync('public/data/forecast.json', 'utf8')))!;
 const summerNoonIsrael = new Date('2026-07-01T09:30:00Z'); // 12:30 שעון ישראל (קיץ, UTC+3)
@@ -42,26 +41,5 @@ describe('buildBeachForecast', () => {
   it('מגמת רוח נגזרת מהנתונים: בגורדון הרוח מתחזקת אחרי הבוקר', () => {
     const morning = new Date('2026-07-01T05:00:00Z'); // 08:00 שעון ישראל
     expect(buildBeachForecast(data.series.gordon, 'mock', morning).windAnalysis?.trend).toBe('stronger');
-  });
-});
-
-describe('getRecommendation עם נתונים חסרים', () => {
-  const base = buildBeachForecast(data.series.gordon, 'mock', summerNoonIsrael);
-  it('חסר גובה גלים: אין ציון (אין מספיק מידע)', () => {
-    expect(getRecommendation({ ...base, waveHeight: null }, 'swim')).toBeNull();
-  });
-  it('חסרה רוח או טמפ׳ אוויר: אין ציון', () => {
-    expect(getRecommendation({ ...base, windSpeed: null }, 'sup')).toBeNull();
-    expect(getRecommendation({ ...base, temperature: null }, 'beach')).toBeNull();
-  });
-  it('חסר UV: יש ציון, אבל UV לא מוצג כגורם', () => {
-    const rec = getRecommendation({ ...base, uvIndex: null }, 'beach')!;
-    expect(rec.score).toBeGreaterThanOrEqual(0);
-    expect(rec.positiveFactors.join()).not.toContain('קרינה');
-    expect(rec.negativeFactors.join()).not.toContain('UV');
-  });
-  it('חסר סיכוי גשם: לא נכתב "אין סיכוי לגשם"', () => {
-    const rec = getRecommendation({ ...base, precipitationChance: null }, 'beach')!;
-    expect(rec.positiveFactors.join()).not.toContain('גשם');
   });
 });

@@ -1,0 +1,41 @@
+{
+  "_הסבר": "ספי הציון לכל פעילות. comfortable = נוח, acceptable = סביר, מחוץ להם = לא נוח. weight = כמה הנתון חשוב לפעילות (סכום המשקלים בכל פעילות = 1). אחרי כל שינוי מעלים את version ומריצים npm run check. הציון מודד נוחות, לא בטיחות.",
+  "version": "1.0",
+  "approvedBy": "הבעלים, 2026-11-13 (השערה ראשונית, לכייל עם איש ים לפני שלב 5)",
+  "points": { "comfortable": 100, "acceptable": 60, "uncomfortable": 15 },
+  "cap": { "minWeight": 0.3, "maxScore": 34 },
+  "rain": { "above": 40, "penalty": 20 },
+  "status": { "excellent": 85, "good": 60, "fair": 35 },
+  "window": { "from": "06:00", "to": "20:00", "minHours": 2, "maxHours": 3, "minScore": 60 },
+  "activities": {
+    "beach": {
+      "airTemperature": { "weight": 0.4, "comfortable": { "min": 22, "max": 29 }, "acceptable": { "min": 18, "max": 32 } },
+      "windSpeed": { "weight": 0.4, "comfortable": { "max": 15 }, "acceptable": { "max": 25 } },
+      "waveHeight": { "weight": 0.2, "comfortable": { "max": 0.6 }, "acceptable": { "max": 1.2 } }
+    },
+    "swim": {
+      "waveHeight": { "weight": 0.4, "comfortable": { "max": 0.4 }, "acceptable": { "max": 0.8 } },
+      "windSpeed": { "weight": 0.25, "comfortable": { "max": 15 }, "acceptable": { "max": 22 } },
+      "waterTemperature": { "weight": 0.25, "comfortable": { "min": 22 }, "acceptable": { "min": 19 } },
+      "airTemperature": { "weight": 0.1, "comfortable": { "min": 22, "max": 32 }, "acceptable": { "min": 18, "max": 35 } }
+    },
+    "kids": {
+      "waveHeight": { "weight": 0.4, "comfortable": { "max": 0.3 }, "acceptable": { "max": 0.5 } },
+      "windSpeed": { "weight": 0.25, "comfortable": { "max": 12 }, "acceptable": { "max": 18 } },
+      "waterTemperature": { "weight": 0.2, "comfortable": { "min": 23 }, "acceptable": { "min": 20 } },
+      "airTemperature": { "weight": 0.15, "comfortable": { "min": 23, "max": 31 }, "acceptable": { "min": 20, "max": 33 } }
+    },
+    "surf": {
+      "waveHeight": { "weight": 0.65, "comfortable": { "min": 0.6, "max": 1.5 }, "acceptable": { "min": 0.4, "max": 2.0 } },
+      "windSpeed": { "weight": 0.35, "comfortable": { "max": 15 }, "acceptable": { "max": 25 } }
+    },
+    "sup": {
+      "windSpeed": { "weight": 0.55, "comfortable": { "max": 8 }, "acceptable": { "max": 15 } },
+      "waveHeight": { "weight": 0.45, "comfortable": { "max": 0.2 }, "acceptable": { "max": 0.4 } }
+    },
+    "sail": {
+      "windSpeed": { "weight": 0.6, "comfortable": { "min": 10, "max": 22 }, "acceptable": { "min": 6, "max": 28 } },
+      "waveHeight": { "weight": 0.4, "comfortable": { "max": 1.0 }, "acceptable": { "max": 1.5 } }
+    }
+  }
+}

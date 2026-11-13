@@ -20,6 +20,7 @@ import { ACTIVITIES } from '../data/beaches';
 import DynamicSeaBackground from './DynamicSeaBackground';
 import { getBackgroundState } from '../lib/utils';
 import { formatValue } from '../lib/formatValue';
+import { hourlyScores } from '../engine/recommend';
 import texts from '../../config/texts/he.json';
 
 // מסך הפירוט של חוף: סיכום ההמלצה, דיווחי שטח, טבלה שעתית, ניתוח רוח והסבר הציון.
@@ -139,7 +140,9 @@ export default function DetailedBeachView({ beach, recommendation, isMock, selec
                <h3 className="font-black text-2xl text-slate-900 mb-1 leading-tight">{recommendation.headline}</h3>
                <div className="flex items-center gap-2 text-slate-400">
                  <LucideIcons.Clock size={14} className="text-amber-500" />
-                 <span className="text-sm font-black">{recommendation.bestTimeWindow} · <span className="text-sea-500">הכי רגוע היום</span></span>
+                 <span className="text-sm font-black">
+                   {texts['window.label']}: {recommendation.bestTimeWindow ? <bdi>{recommendation.bestTimeWindow}</bdi> : texts['window.none']}
+                 </span>
                </div>
             </div>
           </div>
@@ -187,6 +190,7 @@ export default function DetailedBeachView({ beach, recommendation, isMock, selec
             <div className="mt-6">
               <HourlyForecastTable 
                 data={hours} 
+                scores={hourlyScores(beach.forecast, selectedActivity)}
                 currentTime={beach.forecast.currentTime}
                 selectedParameter={selectedParam} 
               />

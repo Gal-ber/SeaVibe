@@ -11,7 +11,7 @@ import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import { BEACHES, ACTIVITIES } from './data/beaches';
 import { ActivityId, Beach, UserSettings } from './types';
-import { getRecommendation } from './lib/scoringEngine';
+import { getRecommendation } from './engine/recommend';
 import { useForecastData } from './lib/useForecastData';
 import { buildBeachForecast } from './engine/forecastView';
 import texts from '../config/texts/he.json';

@@ -80,27 +80,29 @@ export default function CurrentBeachHero({ beach, recommendation, isMock, select
         <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
           <div className="flex-1 order-2 md:order-1 text-center md:text-right">
              <div className="flex flex-col gap-1 mb-6">
-               <h2 className="text-xl font-black text-slate-900">וייב {activityLabel}: {recommendation.score}/100</h2>
+               <h2 data-testid="hero-score" className="text-xl font-black text-slate-900">וייב {activityLabel}: {recommendation.score}/100</h2>
                <div className={`text-sm font-black uppercase tracking-widest ${getStatusColor(recommendation.status)}`}>
-                 {recommendation.status === 'excellent' ? 'מצוין' : 
-                  recommendation.status === 'good' ? 'טוב' : 
-                  recommendation.status === 'fair' ? 'בינוני' : 'חלש'}
+                 {texts[`status.${recommendation.status}`]}
                </div>
              </div>
              
              <h3 className="text-2xl font-black text-slate-900 leading-tight mb-3">
                {recommendation.headline}
              </h3>
-             <p className="text-slate-500 text-lg font-medium leading-relaxed mb-8">
+             <p data-testid="hero-explanation" className="text-slate-500 text-lg font-medium leading-relaxed mb-2">
                {recommendation.shortExplanation}
              </p>
+             {recommendation.confidence === 'partial' && (
+               <p data-testid="hero-partial" className="text-sm font-bold text-amber-700 mb-6">{texts['summary.partial']}</p>
+             )}
+             <div className="mb-6" />
              
              <div className="inline-flex items-center gap-3 bg-amber-50 rounded-2xl px-5 py-3 border border-amber-100">
                <LucideIcons.Clock className="text-amber-500" size={18} />
                <div className="text-right">
-                 <div className="text-[9px] font-black text-amber-600/60 uppercase tracking-widest leading-none mb-1">הזמן המומלץ היום</div>
-                 <div className="text-sm font-black text-amber-700 leading-none">
-                   {recommendation.bestTimeWindow} · הכי רגוע
+                 <div className="text-[9px] font-black text-amber-700 uppercase tracking-widest leading-none mb-1">{texts['window.label']}</div>
+                 <div data-testid="hero-window" className="text-sm font-black text-amber-700 leading-none">
+                   {recommendation.bestTimeWindow ? <bdi>{recommendation.bestTimeWindow}</bdi> : texts['window.none']}
                  </div>
                </div>
              </div>

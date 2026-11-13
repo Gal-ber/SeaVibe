@@ -1,64 +1,28 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-// ניתוח הרוח לפי פעילות: מוסיף להסבר משפט על ההשפעה על הפעילות שנבחרה.
-// מגמת הרוח עצמה מחושבת מהנתונים ב-src/engine/forecastView.ts.
-
+// ניתוח הרוח לפי פעילות: מוסיף להסבר משפט על השפעת הרוח על הפעילות שנבחרה.
+// הדירוג (נוח / סביר / לא נוח) מגיע מאותם ספים של מנוע הציון (config/scoring.json),
+// כך שהניתוח לעולם לא סותר את הציון. מגמת הרוח מחושבת ב-src/engine/forecastView.ts.
+// מתי נוגעים: כשמשנים את ניסוח ניתוח הרוח (הטקסטים ב-config/texts/he.json).
+import texts from '../../config/texts/he.json';
 import { ActivityId, BeachForecast, WindAnalysis } from '../types';
+import { SCORING } from '../engine/scoringConfig';
+import { rateValue } from '../engine/scoring';
 
 export function analyzeWindForActivity(activity: ActivityId, forecast: BeachForecast): WindAnalysis {
   const { windAnalysis } = forecast;
 
   // אין נתוני רוח: לא ממציאים כיוון או עוצמה
   if (!windAnalysis || windAnalysis.speed === null) {
-    return {
-      speed: null,
-      direction: null,
-      trend: 'stable',
-      explanation: 'אין מספיק נתוני רוח לניתוח.',
-      impact: 'לא ידוע'
-    };
+    return { speed: null, direction: null, trend: 'stable', explanation: 'אין מספיק נתוני רוח לניתוח.', impact: 'לא ידוע' };
   }
 
-  const { trend, explanation } = windAnalysis;
-  const speed = windAnalysis.speed;
-
-  let activityImpact = '';
-  switch (activity) {
-    case 'sup':
-      if (speed > 15) activityImpact = 'קושי משמעותי בחתירה וסכנת סחיפה';
-      else if (trend === 'stronger') activityImpact = 'עדיף לחתור מוקדם לפני שהרוח עולה';
-      else activityImpact = 'תנאים נוחים לחתירה';
-      break;
-    case 'swim':
-      if (speed > 20) activityImpact = 'ים קופצני ופחות נעים לשחייה';
-      else activityImpact = 'תנאי שחייה טובים';
-      break;
-    case 'kids':
-      if (speed > 15) activityImpact = 'רוח מציקה שמרימה חול ומקררת';
-      else activityImpact = 'נעים ורגוע לקטנים';
-      break;
-    case 'surf':
-      if (speed < 10) activityImpact = 'ים "נקי" ונוח לגלישה';
-      else if (speed > 25) activityImpact = 'ים מבולגן וקשה לשליטה';
-      else activityImpact = 'גלים מורגשים, רוח משפיעה על איכות הגל';
-      break;
-    case 'sail':
-      if (speed < 8) activityImpact = 'רוח חלשה מדי לשיוט מפרשים';
-      else if (speed > 30) activityImpact = 'רוח חזקה ומסוכנת לשייט קצר';
-      else activityImpact = 'תנאי רוח אידיאליים לשייט';
-      break;
-    case 'beach':
-    default:
-      if (speed > 20) activityImpact = 'רוח חזקה שמרימה חול ומעמידה מחצלות במבחן';
-      else activityImpact = 'בריזה נעימה בחוף';
-      break;
+  const rule = SCORING.activities[activity].windSpeed;
+  let impact = texts['wind.impact.notScored'];
+  if (rule) {
+    const { rating, side } = rateValue(windAnalysis.speed, rule);
+    if (rating === 'comfortable') impact = texts['wind.impact.comfortable'];
+    else if (rating === 'acceptable') impact = texts['wind.impact.acceptable'];
+    else impact = side === 'low' ? texts['wind.impact.uncomfortable.low'] : texts['wind.impact.uncomfortable.high'];
   }
 
-  return {
-    ...windAnalysis,
-    impact: activityImpact,
-    explanation: `${explanation} ${activityImpact}.`
-  };
+  return { ...windAnalysis, impact, explanation: `${windAnalysis.explanation} ${impact}` };
 }

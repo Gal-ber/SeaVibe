@@ -52,6 +52,16 @@ step('קוד המקור (src) לא פונה לאינטרנט', () =>
   })
 );
 
+// כלל 8: הציון הוא נוחות, לא בטיחות. ניסוחים כאלה אסורים בטקסטים שהמשתמש רואה.
+const SAFETY_WORDS = /בטוח|סכנ|מסוכ|מומלץ להיכנס|טביע|\bsafe\b|\bdanger/i;
+step('אין ניסוחי בטיחות בטקסטים (כלל 8)', () =>
+  [...filesIn('src'), ...filesIn('config/texts')].flatMap((file) =>
+    readFileSync(file, 'utf8').split('\n').flatMap((line, i) =>
+      SAFETY_WORDS.test(line) && !line.includes('SAFETY_WORDS') ? [`${file}:${i + 1}: ${line.trim().slice(0, 80)}`] : []
+    )
+  )
+);
+
 step('בדיקת טיפוסים (TypeScript)', () => run('npx tsc --noEmit'));
 step('בדיקות יחידה (נתונים, ערכים חסרים, מנוע)', () => run('npx vitest run'));
 step('בניית האתר', () => run('npx vite build'));

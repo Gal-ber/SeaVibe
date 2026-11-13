@@ -92,18 +92,20 @@ export interface Beach extends BeachInfo {
   isFavorite?: boolean;
 }
 
+export type ScoreStatus = 'excellent' | 'good' | 'fair' | 'poor';
+
+// ההמלצה לחוף ופעילות בשעה הנוכחית. כל גורם בהסבר נובע מכלל שהופעל בפועל במנוע.
 export interface BeachRecommendation {
   score: number;
-  status: 'excellent' | 'good' | 'fair' | 'poor';
+  status: ScoreStatus;
   headline: string;
   shortExplanation: string;
-  bestTimeWindow: string;
-  suitableFor: ActivityId[];
-  notIdealFor: ActivityId[];
-  riskFlags: string[];
+  bestTimeWindow: string | null;
   positiveFactors: string[];
   negativeFactors: string[];
   explanationSummary: string;
+  confidence: 'full' | 'partial';
+  scoringVersion: string;
 }
 
 export interface FieldReport {
