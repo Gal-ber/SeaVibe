@@ -1,6 +1,7 @@
 // שמירה וסיכום של דיווחי שטח במסד D1.
 // - דיווח אחד לכל מדווח, חוף ופעילות בחלון של 4 שעות: דיווח חדש מחליף את הקודם.
-// - הגבלת קצב: עד 20 דיווחים לשעה לכל מדווח.
+// - הגבלת קצב: עד 20 דיווחים לשעה לכל מדווח, ועד 300 לשעה לכל חוף ופעילות
+//   (המזהה האנונימי נוצר במכשיר, ולכן התקרה לכל חוף חוסמת הצפה גם עם מזהים מתחלפים).
 // - מחיקה אוטומטית של דיווחים בני יותר מ-7 ימים.
 // - המזהה האנונימי נשמר רק כ-hash עם "מלח" סודי (REPORTER_SALT) שנמצא רק בהגדרות השרת.
 // מתי נוגעים: כשמשנים את כללי השמירה. המספרים עצמם ב-config/reports.json.
@@ -27,6 +28,12 @@ export async function saveReport(db: D1Database, input: ReportInput, salt: strin
     .bind(reporter, now - HOUR)
     .first<{ n: number }>();
   if ((recent?.n ?? 0) >= rules.maxReportsPerReporterPerHour) return 'rate_limited';
+
+  const place = await db
+    .prepare('SELECT COUNT(*) AS n FROM reports WHERE beach_id = ? AND activity = ? AND created_at >= ?')
+    .bind(input.beachId, input.activity, now - HOUR)
+    .first<{ n: number }>();
+  if ((place?.n ?? 0) >= rules.maxReportsPerPlacePerHour) return 'rate_limited';
 
   await db.batch([
     db

@@ -32,6 +32,8 @@ export async function handleReportsRequest(request: Request, env: ReportsEnv, no
     const origin = request.headers.get('Origin');
     if (origin && origin !== url.origin) return json(403, { error: 'forbidden_origin' });
     if (!(request.headers.get('Content-Type') || '').startsWith('application/json')) return json(415, { error: 'json_only' });
+    // דוחים בקשה גדולה לפי הכותרת, לפני שקוראים אותה
+    if (Number(request.headers.get('Content-Length') || 0) > MAX_BODY) return json(413, { error: 'too_large' });
     const text = await request.text();
     if (text.length > MAX_BODY) return json(413, { error: 'too_large' });
     let body: unknown;

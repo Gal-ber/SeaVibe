@@ -89,6 +89,13 @@ describe('שרת /api/reports', () => {
     expect(statuses.slice(0, 20).every((s) => s === 201)).toBe(true);
     expect(statuses[20]).toBe(429);
   });
+  it('תקרה לכל חוף ופעילות: מזהים מתחלפים לא עוקפים את הגבלת הקצב', async () => {
+    const { db, post } = setup();
+    const insert = db.raw.prepare('INSERT INTO reports (id, beach_id, activity, vote, reason, reporter, created_at) VALUES (?, ?, ?, 1, NULL, ?, ?)');
+    for (let i = 0; i < 300; i++) insert.run(`r${i}`, 'gordon', 'swim', `h${i}`, NOW - 1000);
+    expect((await post(report(999))).status).toBe(429);
+    expect((await post({ ...report(999), beachId: 'haifa' })).status).toBe(201);
+  });
   it('בקשה מאתר אחר נחסמת, וגם גוף גדול מדי', async () => {
     const { post } = setup();
     expect((await post(report(1), NOW, { Origin: 'https://evil.example' })).status).toBe(403);

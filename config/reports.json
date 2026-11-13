@@ -4,8 +4,19 @@
   "minReportsForSummary": 5,
   "retentionDays": 7,
   "maxReportsPerReporterPerHour": 20,
+  "maxReportsPerPlacePerHour": 300,
   "reasons": {
-    "positive": ["reason.goodWaves", "reason.goodWind", "reason.goodWeather", "reason.family"],
-    "negative": ["reason.badWaves", "reason.badWind", "reason.tooHot", "reason.uncomfortable"]
+    "positive": [
+      "reason.goodWaves",
+      "reason.goodWind",
+      "reason.goodWeather",
+      "reason.family"
+    ],
+    "negative": [
+      "reason.badWaves",
+      "reason.badWind",
+      "reason.tooHot",
+      "reason.uncomfortable"
+    ]
   }
 }
