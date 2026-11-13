@@ -31,11 +31,16 @@ function addSecurityPolicy(): Plugin {
   };
 }
 
-export default defineConfig({
+// בנייה במצב remote (רק לאתר הבדיקה ב-Cloudflare): קובץ ההגדרות מוחלף ב-app.config.remote.json,
+// כך שדיווחי השטח נשלחים לשרת שלנו. בכל בנייה אחרת נשאר app.config.json (דיווחים במכשיר בלבד).
+export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), addSecurityPolicy()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, '.'),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, '.') },
+      ...(mode === 'remote'
+        ? [{ find: /^.*\/config\/app\.config\.json$/, replacement: path.resolve(__dirname, 'config/app.config.remote.json') }]
+        : []),
+    ],
   },
-});
+}));

@@ -12,7 +12,9 @@
     "check": "node tests/run-checks.mjs",
     "mock:generate": "node scripts/generate-mock.mjs",
     "test": "vitest run",
-    "screenshots": "vite build && node tests/screenshots.mjs"
+    "screenshots": "vite build && node tests/screenshots.mjs",
+    "build:remote": "vite build --mode remote",
+    "deploy:preview": "npm run build:remote && wrangler pages deploy dist --project-name seavibes --branch preview"
   },
   "dependencies": {
     "@fontsource/assistant": "5.3.0",
@@ -32,6 +34,7 @@
     "tailwindcss": "4.3.5",
     "typescript": "5.8.3",
     "vite": "6.4.6",
-    "vitest": "4.1.12"
+    "vitest": "4.1.12",
+    "wrangler": "4.161.0"
   }
 }

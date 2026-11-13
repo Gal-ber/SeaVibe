@@ -8,5 +8,5 @@ compatibility_date = "2026-11-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "seavibes-reports"
-database_id = "REPLACE_AFTER_CREATING_DATABASE"
+database_id = "be214691-43c4-43a5-a8df-8b075a3ab37f"
 migrations_dir = "migrations"

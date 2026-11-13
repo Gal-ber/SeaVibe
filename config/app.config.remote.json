@@ -1,0 +1,5 @@
+{
+  "_הסבר": "הגדרות לבנייה של אתר הבדיקה ב-Cloudflare בלבד (npm run deploy:preview). תחזית: עדיין נתוני דוגמה. דיווחי שטח: נשלחים לשרת שלנו /api/reports. על המחשב משתמשים ב-app.config.json הרגיל.",
+  "dataMode": "mock",
+  "reportsMode": "remote"
+}
