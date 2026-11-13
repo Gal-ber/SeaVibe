@@ -207,5 +207,22 @@
   "compass.SW": "Southwest",
   "compass.W": "West",
   "compass.NW": "Northwest",
-  "activity.label": "Choose activity"
+  "activity.label": "Choose activity",
+  "disclaimer": "The score describes how comfortable conditions are for your activity. It is not a safety clearance for the beach, swimming or sailing. Always follow lifeguard instructions and beach signs.",
+  "onboarding.skip": "Skip",
+  "location.requesting": "Finding your location…",
+  "location.denied": "We didn't get location access. You can pick a beach from search or your favorites.",
+  "location.unavailable": "We couldn't find your location right now.",
+  "location.nearest": "Nearest supported beach: {beach}",
+  "location.useNearest": "Show the beach nearest me",
+  "favorite.makePrimary": "Set as main beach",
+  "favorite.primary": "Your main beach",
+  "reports.local": "Sample: reports are stored on this device only",
+  "reports.summary.fewCount": "Only a few reports ({n}) — not enough for a summary yet",
+  "reports.changeVote": "Change my report",
+  "reports.yourVote.yes": "You reported: matches",
+  "reports.yourVote.no": "You reported: doesn't match",
+  "reports.noScoreEffect": "Reports do not change the score.",
+  "source.updated": "Updated: {time}",
+  "source.stale": "The data is old (updated more than {hours} hours ago)"
 }

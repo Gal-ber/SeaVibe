@@ -7,8 +7,19 @@ const STATUS_BG: Record<ScoreStatus, string> = {
   excellent: 'bg-emerald-700', good: 'bg-sea-700', fair: 'bg-amber-700', poor: 'bg-rose-700',
 };
 
-export default function RecommendationSummary({ recommendation, isMock }: { recommendation: BeachRecommendation | null; isMock: boolean }) {
-  const { t } = useI18n();
+const STALE_HOURS = 6;
+
+interface Props {
+  recommendation: BeachRecommendation | null;
+  isMock: boolean;
+  generatedAt: string | null;
+}
+
+export default function RecommendationSummary({ recommendation, isMock, generatedAt }: Props) {
+  const { t, lang } = useI18n();
+  // FR-12: במצב אמת מוצג זמן העדכון, ונתון ישן מסומן. במצב mock מוצג "נתוני דוגמה" במקום זמן.
+  const updated = !isMock && generatedAt ? new Date(generatedAt) : null;
+  const stale = updated ? Date.now() - updated.getTime() > STALE_HOURS * 3600_000 : false;
   return (
     <section className="bg-white/90 backdrop-blur-xl rounded-[3rem] p-8 border border-white shadow-2xl shadow-slate-200/50">
       {isMock && (
@@ -16,6 +27,13 @@ export default function RecommendationSummary({ recommendation, isMock }: { reco
           <span className="inline-block text-[11px] font-bold text-slate-800 bg-sand-200 px-2 py-0.5 rounded-full">{t('dataBadge.mock')}</span>
           <p className="mt-2 text-xs font-medium text-slate-600">{t('detail.basis.mock')}</p>
         </div>
+      )}
+      {updated && (
+        <p data-testid="source-updated" className={`mb-4 text-xs font-bold ${stale ? 'text-rose-700' : 'text-slate-600'}`}>
+          {stale
+            ? t('source.stale', { hours: STALE_HOURS })
+            : t('source.updated', { time: updated.toLocaleString(lang === 'he' ? 'he-IL' : 'en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'numeric' }) })}
+        </p>
       )}
       {!recommendation ? (
         <div className="text-center py-4">

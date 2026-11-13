@@ -14,7 +14,7 @@ export default function FieldReportSummaryView({ summary }: { summary: FieldRepo
       <div className="flex-1 space-y-2">
         <p data-testid="reports-summary" className="text-base font-black text-slate-800 leading-snug">{summaryText}</p>
         <div className="flex items-center gap-3 flex-wrap">
-          {totalReports > 0 && (
+          {totalReports >= 5 && (
             <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-lg">
               {t('reports.count', { n: totalReports })}
             </span>
@@ -23,6 +23,7 @@ export default function FieldReportSummaryView({ summary }: { summary: FieldRepo
             <span key={reason} className="text-[10px] font-black text-sea-700">#{t(reason)}</span>
           ))}
         </div>
+        <p className="text-xs font-bold text-slate-600">{t('reports.local')}. {t('reports.noScoreEffect')}</p>
       </div>
     </div>
   );

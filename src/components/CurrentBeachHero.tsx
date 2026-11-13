@@ -15,7 +15,9 @@ interface CurrentBeachHeroProps {
   isMock: boolean;
   selectedActivity: ActivityId;
   isFavorite: boolean;
+  isPrimary: boolean;
   onToggleFavorite: () => void;
+  onMakePrimary: () => void;
   onShowDetails: () => void;
 }
 
@@ -23,7 +25,7 @@ export const STATUS_TEXT: Record<ScoreStatus, string> = {
   excellent: 'text-emerald-700', good: 'text-sea-700', fair: 'text-amber-700', poor: 'text-rose-700',
 };
 
-export default function CurrentBeachHero({ beach, recommendation, isMock, selectedActivity, isFavorite, onToggleFavorite, onShowDetails }: CurrentBeachHeroProps) {
+export default function CurrentBeachHero({ beach, recommendation, isMock, selectedActivity, isFavorite, isPrimary, onToggleFavorite, onMakePrimary, onShowDetails }: CurrentBeachHeroProps) {
   const { t, lang } = useI18n();
   const f = beach.forecast;
 
@@ -43,11 +45,17 @@ export default function CurrentBeachHero({ beach, recommendation, isMock, select
               <LucideIcons.Heart size={28} fill={isFavorite ? 'currentColor' : 'none'} aria-hidden="true" />
             </button>
           </div>
-          {isFavorite && (
-            <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-700 rounded-full border border-rose-100">
-              <LucideIcons.Heart size={10} fill="currentColor" aria-hidden="true" />
-              <span className="text-[11px] font-black leading-none">{t('hero.favoriteBadge')}</span>
+          {isFavorite && isPrimary && (
+            <div data-testid="primary-badge" className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-700 rounded-full border border-rose-100">
+              <LucideIcons.Star size={10} fill="currentColor" aria-hidden="true" />
+              <span className="text-[11px] font-black leading-none">{t('favorite.primary')}</span>
             </div>
+          )}
+          {isFavorite && !isPrimary && (
+            <button onClick={onMakePrimary} className="mt-2 min-h-11 inline-flex items-center gap-1.5 px-3 text-sea-800 rounded-full border border-sea-200 bg-white/70 hover:bg-white">
+              <LucideIcons.Star size={12} aria-hidden="true" />
+              <span className="text-xs font-black">{t('favorite.makePrimary')}</span>
+            </button>
           )}
         </div>
         <button

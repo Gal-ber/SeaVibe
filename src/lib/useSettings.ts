@@ -44,8 +44,9 @@ export function useSettings() {
       return { ...prev, favorites, primaryFavorite };
     });
 
+  const setPrimary = (beachId: string) => setSettings((prev) => ({ ...prev, primaryFavorite: beachId }));
   const reopenPreferences = () => setSettings((prev) => ({ ...prev, onboardingCompleted: false }));
   const setLocationGranted = (granted: boolean) => setSettings((prev) => ({ ...prev, locationPermissionGranted: granted }));
 
-  return { settings, completeOnboarding, toggleFavorite, reopenPreferences, setLocationGranted };
+  return { settings, completeOnboarding, toggleFavorite, setPrimary, reopenPreferences, setLocationGranted };
 }

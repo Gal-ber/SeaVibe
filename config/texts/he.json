@@ -207,5 +207,22 @@
   "compass.SW": "דרום-מערבית",
   "compass.W": "מערבית",
   "compass.NW": "צפון-מערבית",
-  "activity.label": "בחירת פעילות"
+  "activity.label": "בחירת פעילות",
+  "disclaimer": "הציון מתאר עד כמה התנאים נוחים לפעילות שבחרת. הוא אינו אישור בטיחות לישיבה בחוף, לשחייה או לשייט. תמיד פעלו לפי הוראות המציל והשילוט בחוף.",
+  "onboarding.skip": "דלג",
+  "location.requesting": "מאתר מיקום…",
+  "location.denied": "לא קיבלנו גישה למיקום. אפשר לבחור חוף בחיפוש או מהמועדפים.",
+  "location.unavailable": "לא הצלחנו לאתר מיקום כרגע.",
+  "location.nearest": "החוף הנתמך הקרוב אליך: {beach}",
+  "location.useNearest": "הצג את החוף הקרוב אליי",
+  "favorite.makePrimary": "קבע כחוף ראשי",
+  "favorite.primary": "החוף הראשי שלך",
+  "reports.local": "דוגמה: הדיווחים נשמרים רק במכשיר הזה",
+  "reports.summary.fewCount": "מעט דיווחים ({n}) — עדיין לא מספיק לסיכום",
+  "reports.changeVote": "שינוי הדיווח",
+  "reports.yourVote.yes": "דיווחת: מתאים",
+  "reports.yourVote.no": "דיווחת: לא מתאים",
+  "reports.noScoreEffect": "הדיווחים לא משנים את הציון.",
+  "source.updated": "עודכן: {time}",
+  "source.stale": "הנתונים ישנים (עודכנו לפני יותר מ-{hours} שעות)"
 }

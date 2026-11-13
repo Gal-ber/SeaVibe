@@ -14,6 +14,8 @@ import { useSettings } from '../lib/useSettings';
 import { getBackgroundState } from '../lib/utils';
 import { useI18n } from '../i18n/I18nProvider';
 import { useMediaQuery } from '../lib/useMediaQuery';
+import { useLocationBeach } from '../lib/useLocationBeach';
+import LoadingSkeleton from '../components/LoadingSkeleton';
 import ActivitySelector from '../components/ActivitySelector';
 import BeachSearch from '../components/BeachSearch';
 import FavoriteBeachesStrip from '../components/FavoriteBeachesStrip';
@@ -24,15 +26,13 @@ import LocationPermissionCard from '../components/LocationPermissionCard';
 import LanguageToggle from '../components/LanguageToggle';
 import HourlySection from '../components/HourlySection';
 
-const DISMISS_KEY = 'seavibes_location_dismissed';
-const readDismissed = () => { try { return !!localStorage.getItem(DISMISS_KEY); } catch { return false; } };
-
-export default function HomeScreen({ settings, toggleFavorite, reopenPreferences, setLocationGranted }: ReturnType<typeof useSettings>) {
+export default function HomeScreen({ settings, toggleFavorite, setPrimary, reopenPreferences, setLocationGranted }: ReturnType<typeof useSettings>) {
   const { t, lang } = useI18n();
   const [activity, setActivity] = useState<ActivityId>(settings.favoriteActivities[0] || 'beach');
   const [selectedBeachId, setSelectedBeachId] = useState<string | null>(settings.primaryFavorite || null);
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [locationDismissed, setLocationDismissed] = useState(readDismissed);
+  // FR-3: חוף קרוב (אם יש מיקום), אחרת המועדף הראשי, אחרת מסך בחירה
+  const location = useLocationBeach(settings.locationPermissionGranted, setLocationGranted, setSelectedBeachId);
 
   const { status, result, reload, now } = useForecastData();
   const isWide = useMediaQuery('(min-width: 1024px)');
@@ -46,10 +46,6 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
   const favoriteBeaches = beaches.filter((b) => settings.favorites.includes(b.id));
   const recommendation = selectedBeach ? getRecommendation(selectedBeach.forecast, activity, lang) : null;
 
-  const dismissLocation = () => {
-    try { localStorage.setItem(DISMISS_KEY, 'true'); } catch { /* אחסון לא זמין */ }
-    setLocationDismissed(true);
-  };
 
   return (
     <div className="safe-area min-h-screen font-sans relative overflow-x-hidden">
@@ -68,6 +64,11 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
             <LanguageToggle />
           </div>
           <p className="text-[11px] font-bold text-slate-700 uppercase tracking-widest leading-none">{t('app.tagline')}</p>
+          {location.nearestId && (
+            <p data-testid="nearest-beach" className="mt-3 text-sm font-bold text-slate-800">
+              {t('location.nearest', { beach: beachName(BEACHES.find((b) => b.id === location.nearestId)!, lang) })}
+            </p>
+          )}
         </header>
 
         <div className="lg:grid lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:gap-10 lg:items-start">
@@ -83,12 +84,12 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
           </section>
         )}
 
-        {selectedBeach && status !== 'ready' ? (
-          <div className="py-16 text-center space-y-4" role="status">
-            <p className="text-lg font-black text-slate-800">{t(status === 'loading' ? 'data.loading' : 'data.error')}</p>
-            {status === 'unavailable' && (
-              <button onClick={reload} className="min-h-11 px-6 py-3 bg-sea-700 text-white rounded-2xl font-extrabold">{t('data.retry')}</button>
-            )}
+        {selectedBeach && status === 'loading' ? (
+          <LoadingSkeleton label={t('data.loading')} />
+        ) : selectedBeach && status === 'unavailable' ? (
+          <div className="py-16 text-center space-y-4" role="alert">
+            <p className="text-lg font-black text-slate-800">{t('data.error')}</p>
+            <button onClick={reload} className="min-h-11 px-6 py-3 bg-sea-700 text-white rounded-2xl font-extrabold">{t('data.retry')}</button>
           </div>
         ) : selectedBeach ? (
           <div key={selectedBeach.id} className="mb-12">
@@ -98,15 +99,17 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
               recommendation={recommendation}
               selectedActivity={activity}
               isFavorite={settings.favorites.includes(selectedBeach.id)}
+              isPrimary={settings.primaryFavorite === selectedBeach.id}
               onToggleFavorite={() => toggleFavorite(selectedBeach.id)}
+              onMakePrimary={() => setPrimary(selectedBeach.id)}
               onShowDetails={() => setDetailId(selectedBeach.id)}
             />
             <section className="mt-4 mb-4">
               <ActivitySelector selectedActivity={activity} onSelect={setActivity} onOpenPreferences={reopenPreferences} />
             </section>
-            {!settings.locationPermissionGranted && !locationDismissed && (
+            {!settings.locationPermissionGranted && !location.dismissed && (
               <div className="mb-8">
-                <LocationPermissionCard beachName={beachName(selectedBeach, lang)} onEnable={() => setLocationGranted(true)} onDismiss={dismissLocation} />
+                <LocationPermissionCard beachName={beachName(selectedBeach, lang)} state={location.state} onEnable={location.request} onDismiss={location.dismiss} />
               </div>
             )}
             <div className="flex justify-center">
@@ -139,6 +142,7 @@ export default function HomeScreen({ settings, toggleFavorite, reopenPreferences
           <DetailedBeachView
             beach={detailBeach}
             isMock={isMock}
+            generatedAt={result.data?.generatedAt ?? null}
             recommendation={getRecommendation(detailBeach.forecast, activity, lang)}
             selectedActivity={activity}
             isFavorite={settings.favorites.includes(detailBeach.id)}

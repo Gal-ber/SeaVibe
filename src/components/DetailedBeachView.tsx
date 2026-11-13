@@ -1,10 +1,10 @@
 // מסך הפירוט של חוף: סיכום ההמלצה, דיווחי שטח, טבלה שעתית, ניתוח רוח והסבר הציון.
 // כל המספרים כאן מאותה סדרה שעתית כמו הכרטיס במסך הראשי.
 // מתי נוגעים: כשמוסיפים או מסדרים חלקים במסך. כל חלק גדול נמצא בקובץ משלו ב-detail/.
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
-import { Beach, ActivityId, BeachRecommendation, FieldReport } from '../types';
+import { Beach, ActivityId, BeachRecommendation } from '../types';
 import WindSummary from './WindSummary';
 import HourlySection from './HourlySection';
 import FieldReportSummaryView from './FieldReportSummary';
@@ -14,6 +14,7 @@ import SectionHeader from './detail/SectionHeader';
 import RecommendationSummary from './detail/RecommendationSummary';
 import WhySection from './detail/WhySection';
 import { getRecentFieldReports, summarizeFieldReports } from '../lib/fieldReports';
+import { useFieldReports } from '../lib/useFieldReports';
 import { getBackgroundState } from '../lib/utils';
 import { beachName } from '../data/beaches';
 import { useI18n } from '../i18n/I18nProvider';
@@ -22,26 +23,21 @@ interface DetailedBeachViewProps {
   beach: Beach;
   recommendation: BeachRecommendation | null;
   isMock: boolean;
+  generatedAt: string | null;
   selectedActivity: ActivityId;
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onClose: () => void;
 }
 
-export default function DetailedBeachView({ beach, recommendation, isMock, selectedActivity, isFavorite, onToggleFavorite, onClose }: DetailedBeachViewProps) {
+export default function DetailedBeachView({ beach, recommendation, isMock, generatedAt, selectedActivity, isFavorite, onToggleFavorite, onClose }: DetailedBeachViewProps) {
   const { t, lang } = useI18n();
-  const [reports, setReports] = useState<FieldReport[]>([]);
+  const { reports, submit } = useFieldReports();
   const activityLabel = t(`activity.${selectedActivity}`);
 
-  const reportSummary = useMemo(
-    () => summarizeFieldReports(getRecentFieldReports(reports, beach.id, selectedActivity), activityLabel, lang),
-    [reports, beach.id, selectedActivity, activityLabel, lang],
-  );
-
-  const handleSubmitReport = (isAccurate: boolean, reason?: string) => {
-    const report: FieldReport = { id: crypto.randomUUID(), beachId: beach.id, activity: selectedActivity, isAccurate, reason, createdAt: new Date().toISOString() };
-    setReports((prev) => [report, ...prev]);
-  };
+  const recent = useMemo(() => getRecentFieldReports(reports, beach.id, selectedActivity), [reports, beach.id, selectedActivity]);
+  const reportSummary = summarizeFieldReports(recent, activityLabel, lang);
+  const myVote = recent.length ? recent[0].isAccurate : null;
 
   return (
     <motion.div
@@ -77,7 +73,8 @@ export default function DetailedBeachView({ beach, recommendation, isMock, selec
       </div>
 
       <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-12 mt-4 relative z-10">
-        <RecommendationSummary recommendation={recommendation} isMock={isMock} />
+        <RecommendationSummary recommendation={recommendation} isMock={isMock} generatedAt={generatedAt} />
+        <p data-testid="disclaimer" className="text-sm font-bold text-slate-700 bg-white/80 rounded-2xl p-4 border border-slate-200">{t('disclaimer')}</p>
 
         <HourlySection beach={beach} activity={selectedActivity} />
 
@@ -93,7 +90,12 @@ export default function DetailedBeachView({ beach, recommendation, isMock, selec
           <div className="bg-white/80 backdrop-blur-lg rounded-[2.5rem] p-6 border border-white shadow-xl shadow-slate-200/30">
             <FieldReportSummaryView summary={reportSummary} />
             <div className="mt-8 pt-8 border-t border-slate-100">
-              <FieldReportActions activityLabel={activityLabel} onSubmit={handleSubmitReport} />
+              <FieldReportActions
+                key={`${beach.id}-${selectedActivity}`}
+                activityLabel={activityLabel}
+                existingVote={myVote}
+                onSubmit={(isAccurate, reason) => submit(beach.id, selectedActivity, isAccurate, reason)}
+              />
             </div>
           </div>
         </section>

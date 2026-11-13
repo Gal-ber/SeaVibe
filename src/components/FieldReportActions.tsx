@@ -7,15 +7,18 @@ import { useI18n } from '../i18n/I18nProvider';
 
 interface FieldReportActionsProps {
   activityLabel: string;
+  existingVote: boolean | null;
+  key?: string;
   onSubmit: (isAccurate: boolean, reason?: string) => void;
 }
 
 const POSITIVE = ['reason.goodWaves', 'reason.goodWind', 'reason.goodWeather', 'reason.family'];
 const NEGATIVE = ['reason.badWaves', 'reason.badWind', 'reason.tooHot', 'reason.uncomfortable'];
 
-export default function FieldReportActions({ activityLabel, onSubmit }: FieldReportActionsProps) {
+export default function FieldReportActions({ activityLabel, existingVote, onSubmit }: FieldReportActionsProps) {
   const { t } = useI18n();
-  const [step, setStep] = useState<'initial' | 'reasons' | 'thanks'>('initial');
+  // אם כבר דיווחת על החוף והפעילות האלה ב-4 השעות האחרונות, רואים את הדיווח ואפשר לשנות
+  const [step, setStep] = useState<'initial' | 'reasons' | 'thanks' | 'existing'>(existingVote === null ? 'initial' : 'existing');
   const [selection, setSelection] = useState<boolean | null>(null);
 
   const finish = (reason?: string) => {
@@ -27,6 +30,15 @@ export default function FieldReportActions({ activityLabel, onSubmit }: FieldRep
   return (
     <div className="bg-white border-2 border-sea-100 rounded-[2rem] p-6 shadow-sm overflow-hidden">
       <AnimatePresence mode="wait">
+        {step === 'existing' && (
+          <motion.div key="existing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center space-y-3">
+            <p data-testid="reports-your-vote" className="font-extrabold text-slate-800">{t(existingVote ? 'reports.yourVote.yes' : 'reports.yourVote.no')}</p>
+            <button onClick={() => setStep('initial')} className="min-h-11 px-4 rounded-2xl text-sea-700 font-bold border border-sea-100 hover:bg-sea-50">
+              {t('reports.changeVote')}
+            </button>
+          </motion.div>
+        )}
+
         {step === 'initial' && (
           <motion.div key="initial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-center space-y-4">
             <h3 className="font-extrabold text-slate-800 text-lg">{t('reports.question')}</h3>

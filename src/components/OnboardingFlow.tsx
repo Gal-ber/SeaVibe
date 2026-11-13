@@ -1,5 +1,6 @@
 // מסך הפתיחה: ארבעה שלבים (חופים, מיקום, פעילויות, סיום). אין חשבון, הכול נשמר במכשיר.
-// מתי נוגעים: שלב 3ג (מיקום אמיתי, דילוג בכל שלב).
+// בכל שלב אפשר לדלג. המיקום מתבקש רק בלחיצה, והדגל נדלק רק אם הדפדפן אישר בפועל.
+// מתי נוגעים: כשמשנים את שלבי הפתיחה.
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
@@ -7,6 +8,7 @@ import { BEACHES, ACTIVITIES, beachCity, beachName } from '../data/beaches';
 import { ActivityId } from '../types';
 import { useI18n } from '../i18n/I18nProvider';
 import LanguageToggle from './LanguageToggle';
+import { dismissLocation, findNearestBeach } from '../lib/location';
 
 interface OnboardingFlowProps {
   initialFavorites?: string[];
@@ -22,9 +24,25 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
   const [step, setStep] = useState(1);
   const [favorites, setFavorites] = useState<string[]>(initialFavorites);
   const [activities, setActivities] = useState<ActivityId[]>(initialActivities);
+  const [locationGranted, setLocationGranted] = useState(false);
+  const [locationMessage, setLocationMessage] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
+
+  const requestLocation = async () => {
+    setLocating(true);
+    const result = await findNearestBeach();
+    setLocating(false);
+    if ('beachId' in result) {
+      setLocationGranted(true);
+      setStep(3);
+      return;
+    }
+    if (result.reason === 'denied') dismissLocation();
+    setLocationMessage(t(result.reason === 'denied' ? 'location.denied' : 'location.unavailable'));
+  };
 
   const toggle = <T,>(list: T[], item: T) => (list.includes(item) ? list.filter((x) => x !== item) : [...list, item]);
-  const finish = (locationPermission: boolean) => onComplete({ favorites, favoriteActivities: activities, locationPermission });
+  const finish = () => onComplete({ favorites, favoriteActivities: activities, locationPermission: locationGranted });
   const next = () => setStep(step + 1);
   const back = () => (step > 1 ? setStep(step - 1) : onComplete({ favorites: initialFavorites, favoriteActivities: initialActivities, locationPermission: false }));
 
@@ -53,9 +71,12 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
             <LucideIcons.MapPin size={40} aria-hidden="true" />
           </div>
           <div className="w-full space-y-3">
-            <button onClick={() => finish(true)} className="w-full min-h-11 py-4 bg-sea-700 text-white rounded-2xl font-extrabold shadow-lg shadow-sea-200">
-              {t('onboarding.location.allow')}
-            </button>
+            {locationMessage && <p role="status" className="text-sm font-bold text-slate-700 text-center">{locationMessage}</p>}
+            {!locationMessage && (
+              <button onClick={requestLocation} disabled={locating} className="w-full min-h-11 py-4 bg-sea-700 text-white rounded-2xl font-extrabold shadow-lg shadow-sea-200 disabled:opacity-70">
+                {t(locating ? 'location.requesting' : 'onboarding.location.allow')}
+              </button>
+            )}
             <button onClick={next} className="w-full min-h-11 py-4 text-slate-600 font-bold hover:text-slate-800">
               {t('onboarding.location.later')}
             </button>
@@ -85,7 +106,7 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
           <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600">
             <LucideIcons.Check size={48} aria-hidden="true" />
           </div>
-          <button onClick={() => finish(false)} className="w-full min-h-11 py-4 bg-sea-700 text-white rounded-2xl font-extrabold shadow-lg shadow-sea-200">
+          <button onClick={finish} className="w-full min-h-11 py-4 bg-sea-700 text-white rounded-2xl font-extrabold shadow-lg shadow-sea-200">
             {t('onboarding.done.cta')}
           </button>
         </div>
@@ -111,8 +132,13 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
           </div>
           <div className="flex items-center gap-2">
             <LanguageToggle />
+            {step < 4 && (
+              <button onClick={next} className="min-h-11 min-w-11 px-2 text-slate-700 font-bold text-sm">
+                {t('onboarding.skip')}
+              </button>
+            )}
             {step < 4 && step !== 2 && (
-              <button onClick={next} disabled={!canContinue} className={`min-h-11 px-2 text-sea-700 font-extrabold text-sm ${canContinue ? '' : 'opacity-40'}`}>
+              <button onClick={next} disabled={!canContinue} className={`min-h-11 min-w-11 px-2 text-sea-700 font-extrabold text-sm ${canContinue ? '' : 'opacity-40'}`}>
                 {t('onboarding.next')}
               </button>
             )}
@@ -122,7 +148,10 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
         <AnimatePresence mode="wait">
           <motion.div key={step} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col justify-center">
             <h1 className="text-3xl font-black text-slate-900 mb-2 leading-tight">{t(`onboarding.${current.key}.title`)}</h1>
-            <p className="text-slate-600 font-medium mb-8 text-lg">{t(`onboarding.${current.key}.subtitle`)}</p>
+            <p className="text-slate-600 font-medium mb-6 text-lg">{t(`onboarding.${current.key}.subtitle`)}</p>
+            {step === 1 && (
+              <p data-testid="disclaimer" className="mb-6 text-sm font-bold text-slate-700 bg-slate-50 rounded-2xl p-4 border border-slate-200">{t('disclaimer')}</p>
+            )}
             {current.render()}
           </motion.div>
         </AnimatePresence>

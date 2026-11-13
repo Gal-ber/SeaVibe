@@ -40,6 +40,14 @@ async function axe(page: Page) {
     .map((v) => `${v.id}: ${v.nodes.map((n) => `${n.target.join(' ')} [${n.any[0]?.message ?? ''}]`).join(' | ')}`);
 }
 
+test('מסך הפתיחה: בלי גלילה אופקית, כפתורים בגודל תקין ונגישות', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await noHorizontalScroll(page);
+  expect(await smallTargets(page, 'body')).toEqual([]);
+  expect(await axe(page)).toEqual([]);
+});
+
 test('מסך ראשי ופירוט: פריסה, גודל כפתורים ונגישות, בעברית ובאנגלית', async ({ page }) => {
   await onboard(page);
   for (const lang of ['he', 'en']) {
