@@ -117,9 +117,10 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
   const canContinue = !(step === 1 && favorites.length === 0);
 
   return (
-    <div className="safe-area fixed inset-0 z-50 bg-white flex flex-col p-6 sm:p-8 overflow-y-auto">
-      <div className="w-full max-w-xl mx-auto flex flex-col flex-1">
-        <div className="flex justify-between items-center mb-8 gap-3">
+    <div className="safe-area fixed inset-0 z-50 bg-white flex flex-col overflow-y-auto">
+      {/* הריווח הפנימי בעטיפה נפרדת, כדי שלא יתנגש עם הריווח של אזורי החיתוך ב-iPhone */}
+      <div className="w-full max-w-xl mx-auto flex flex-col flex-1 p-6 sm:p-8">
+        <div className="flex flex-wrap justify-between items-center mb-8 gap-3">
           <div className="flex items-center gap-4">
             <button onClick={back} aria-label={t('nav.back')} className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 hover:text-slate-800 transition-colors">
               <LucideIcons.ArrowRight size={20} className="ltr:rotate-180" aria-hidden="true" />

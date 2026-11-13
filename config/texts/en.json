@@ -224,5 +224,11 @@
   "reports.yourVote.no": "You reported: doesn't match",
   "reports.noScoreEffect": "Reports do not change the score.",
   "source.updated": "Updated: {time}",
-  "source.stale": "The data is old (updated more than {hours} hours ago)"
+  "source.stale": "The data is old (updated more than {hours} hours ago)",
+  "offline.banner": "You're offline. Showing the last saved information, updated {ago}.",
+  "ago.now": "just now",
+  "ago.minutes": "{n} minutes ago",
+  "ago.hours": "{n} hours ago",
+  "ago.days": "{n} days ago",
+  "search.rankedFor": "Most comfortable beaches for {activity} now"
 }

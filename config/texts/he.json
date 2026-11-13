@@ -224,5 +224,11 @@
   "reports.yourVote.no": "דיווחת: לא מתאים",
   "reports.noScoreEffect": "הדיווחים לא משנים את הציון.",
   "source.updated": "עודכן: {time}",
-  "source.stale": "הנתונים ישנים (עודכנו לפני יותר מ-{hours} שעות)"
+  "source.stale": "הנתונים ישנים (עודכנו לפני יותר מ-{hours} שעות)",
+  "offline.banner": "אין חיבור לרשת. מוצג המידע האחרון ששמרנו, עודכן {ago}.",
+  "ago.now": "ממש עכשיו",
+  "ago.minutes": "לפני {n} דקות",
+  "ago.hours": "לפני {n} שעות",
+  "ago.days": "לפני {n} ימים",
+  "search.rankedFor": "החופים הנוחים ביותר ל{activity} עכשיו"
 }

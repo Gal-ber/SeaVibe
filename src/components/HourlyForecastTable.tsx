@@ -30,10 +30,10 @@ export default function HourlyForecastTable({ data, scores, selectedParameter, c
     ];
 
     // Reorder: selected first (after time)
-    // שעה וציון קבועים בהתחלה, אחריהם העמודה שנבחרה, ואז השאר
+    // השעה ראשונה, מיד אחריה העמודה שנבחרה, אחר כך שאר הנתונים, והציון בסוף
     const selectedCol = baseCols.find(c => c.id === selectedParameter)!;
     const otherCols = baseCols.filter(c => c.id !== 'time' && c.id !== 'score' && c.id !== selectedParameter);
-    return [baseCols[0], baseCols[1], selectedCol, ...otherCols];
+    return [baseCols[0], selectedCol, ...otherCols, baseCols[1]];
   };
 
   const columns = getColumns();
@@ -47,6 +47,7 @@ export default function HourlyForecastTable({ data, scores, selectedParameter, c
               {columns.map((col) => (
                 <th
                   key={col.id}
+                  data-testid={`col-${col.id}`}
                   scope="col"
                   className={`px-4 py-4 text-start text-[11px] font-extrabold text-slate-600 uppercase tracking-wider border-b border-slate-100 ${
                     col.id === selectedParameter ? 'text-sea-600 bg-sea-50/30' : ''

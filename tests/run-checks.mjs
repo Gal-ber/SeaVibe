@@ -79,6 +79,21 @@ step('לכל מפתח טקסט יש תרגום בשתי השפות (FR-15)', () 
   return [...he.filter((k) => !en.includes(k)).map((k) => `חסר באנגלית: ${k}`), ...en.filter((k) => !he.includes(k)).map((k) => `חסר בעברית: ${k}`)];
 });
 
+step('ה-service worker פונה רק לאתר שלנו (public/sw.js)', () => {
+  const sw = readFileSync('public/sw.js', 'utf8');
+  const problems = [];
+  if (/https?:\/\//.test(sw)) problems.push('public/sw.js: נמצאה כתובת אינטרנט');
+  if (!sw.includes('url.origin !== self.location.origin')) problems.push('public/sw.js: חסרה בדיקה שהבקשה לאתר שלנו בלבד');
+  return problems;
+});
+
+// כלל 10: אין מודל שפה בחישוב. אין חבילות של מודלי שפה בפרויקט.
+step('אין חבילות של מודל שפה (כלל 10)', () => {
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+  const deps = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies });
+  return deps.filter((d) => /openai|anthropic|genai|langchain|cohere|mistral|ollama/i.test(d)).map((d) => `נמצאה חבילה: ${d}`);
+});
+
 step('בדיקת טיפוסים (TypeScript)', () => run('npx tsc --noEmit'));
 step('בדיקות יחידה (נתונים, ערכים חסרים, מנוע)', () => run('npx vitest run'));
 step('בניית האתר', () => run('npx vite build'));

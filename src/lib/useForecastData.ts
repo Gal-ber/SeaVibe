@@ -7,7 +7,7 @@ export type ForecastStatus = 'loading' | 'ready' | 'unavailable';
 
 export function useForecastData() {
   const [status, setStatus] = useState<ForecastStatus>('loading');
-  const [result, setResult] = useState<ForecastResult>({ mode: getDataMode(), available: false, data: null });
+  const [result, setResult] = useState<ForecastResult>({ mode: getDataMode(), available: false, data: null, cachedAt: null });
 
   const reload = useCallback(() => {
     setStatus('loading');

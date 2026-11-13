@@ -40,6 +40,14 @@ export function normalizeSearch(text: string): string {
     .trim();
 }
 
+// חיפוש פעילות לפי שם בעברית או באנגלית (למשל "גלישה" או "surf")
+export function searchActivity(query: string, label: (id: Activity['id'], lang: Lang) => string): Activity['id'] | null {
+  const q = normalizeSearch(query);
+  if (q.length < 2) return null;
+  const hit = ACTIVITIES.find((a) => (['he', 'en'] as Lang[]).some((l) => normalizeSearch(label(a.id, l)).includes(q)));
+  return hit ? hit.id : null;
+}
+
 // חיפוש חוף בעברית או באנגלית (שם או עיר). לא ממציא חופים: מחזיר רק חופים מהקטלוג.
 export function searchBeaches(query: string): BeachInfo[] {
   const q = normalizeSearch(query);

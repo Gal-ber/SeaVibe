@@ -3,8 +3,9 @@
 // מתי נוגעים: כשמשנים את התנהגות החיפוש. הניקוי של הטקסט נמצא ב-src/data/beaches.ts.
 import React, { useEffect, useId, useRef, useState } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { BEACHES, beachCity, beachName, searchBeaches } from '../data/beaches';
-import { BeachInfo } from '../types';
+import { BEACHES, beachCity, beachName, searchActivity, searchBeaches } from '../data/beaches';
+import { ActivityId, BeachInfo } from '../types';
+import { translate } from '../i18n/translate';
 import { useI18n } from '../i18n/I18nProvider';
 
 interface BeachSearchProps {
@@ -12,9 +13,12 @@ interface BeachSearchProps {
   favorites: string[];
   onToggleFavorite: (beachId: string) => void;
   inputRef?: React.RefObject<HTMLInputElement | null>;
+  // חיפוש פעילות: מדרג את החופים הנתמכים לפי הציון שלהם לפעילות
+  rankBeaches: (activity: ActivityId) => { beach: BeachInfo; score: number | null }[];
+  onSelectActivity: (activity: ActivityId) => void;
 }
 
-export default function BeachSearch({ onSelect, favorites, onToggleFavorite, inputRef }: BeachSearchProps) {
+export default function BeachSearch({ onSelect, favorites, onToggleFavorite, inputRef, rankBeaches, onSelectActivity }: BeachSearchProps) {
   const { t, lang } = useI18n();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -30,10 +34,14 @@ export default function BeachSearch({ onSelect, favorites, onToggleFavorite, inp
   }, []);
 
   const hasQuery = query.trim().length > 0;
-  const results: BeachInfo[] = hasQuery ? searchBeaches(query) : BEACHES.filter((b) => favorites.includes(b.id));
+  const beachResults = hasQuery ? searchBeaches(query) : [];
+  const activityHit = hasQuery && beachResults.length === 0 ? searchActivity(query, (id, l) => translate(l, `activity.${id}`)) : null;
+  const ranked = activityHit ? rankBeaches(activityHit) : [];
+  const results: BeachInfo[] = hasQuery ? (activityHit ? ranked.map((r) => r.beach) : beachResults) : BEACHES.filter((b) => favorites.includes(b.id));
   const showList = open && (hasQuery || results.length > 0);
 
   const choose = (id: string) => {
+    if (activityHit) onSelectActivity(activityHit);
     onSelect(id);
     setQuery('');
     setOpen(false);
@@ -49,6 +57,11 @@ export default function BeachSearch({ onSelect, favorites, onToggleFavorite, inp
           <span className="block font-extrabold text-slate-800">{beachName(beach, lang)}</span>
           <span className="block text-[11px] font-bold text-slate-600">{beachCity(beach, lang)}</span>
         </span>
+        {activityHit && (
+          <span data-testid="ranked-score" className="ms-auto text-lg font-black text-sea-800">
+            {ranked.find((r) => r.beach.id === beach.id)?.score ?? t('value.unavailable')}
+          </span>
+        )}
       </button>
       <button
         onClick={() => onToggleFavorite(beach.id)}
@@ -83,6 +96,11 @@ export default function BeachSearch({ onSelect, favorites, onToggleFavorite, inp
       {showList && (
         <div id={listId} className="mt-3 lg:absolute lg:top-full lg:inset-x-0 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden max-h-[50vh] overflow-y-auto no-scrollbar">
           {!hasQuery && <p className="px-5 pt-5 pb-2 text-[11px] font-black text-slate-600 uppercase tracking-widest">{t('search.favorites')}</p>}
+          {activityHit && (
+            <p data-testid="ranked-heading" className="px-5 pt-5 pb-2 text-[11px] font-black text-slate-600 uppercase tracking-widest">
+              {t('search.rankedFor', { activity: t(`activity.${activityHit}`) })}
+            </p>
+          )}
           {results.length > 0 ? (
             <ul>{results.map(row)}</ul>
           ) : (

@@ -16,6 +16,7 @@ import { useI18n } from '../i18n/I18nProvider';
 import { useMediaQuery } from '../lib/useMediaQuery';
 import { useLocationBeach } from '../lib/useLocationBeach';
 import LoadingSkeleton from '../components/LoadingSkeleton';
+import { timeAgo } from '../lib/timeAgo';
 import ActivitySelector from '../components/ActivitySelector';
 import BeachSearch from '../components/BeachSearch';
 import FavoriteBeachesStrip from '../components/FavoriteBeachesStrip';
@@ -64,6 +65,11 @@ export default function HomeScreen({ settings, toggleFavorite, setPrimary, reope
             <LanguageToggle />
           </div>
           <p className="text-[11px] font-bold text-slate-700 uppercase tracking-widest leading-none">{t('app.tagline')}</p>
+          {result.cachedAt && (
+            <p data-testid="offline-banner" role="status" className="mt-3 text-sm font-bold text-amber-900 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-2">
+              {t('offline.banner', { ago: timeAgo(result.cachedAt, now, lang) })}
+            </p>
+          )}
           {location.nearestId && (
             <p data-testid="nearest-beach" className="mt-3 text-sm font-bold text-slate-800">
               {t('location.nearest', { beach: beachName(BEACHES.find((b) => b.id === location.nearestId)!, lang) })}
@@ -74,7 +80,17 @@ export default function HomeScreen({ settings, toggleFavorite, setPrimary, reope
         <div className="lg:grid lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:gap-10 lg:items-start">
         <div>
         <div className="mb-8">
-          <BeachSearch onSelect={setSelectedBeachId} favorites={settings.favorites} onToggleFavorite={toggleFavorite} />
+          <BeachSearch
+            onSelect={setSelectedBeachId}
+            favorites={settings.favorites}
+            onToggleFavorite={toggleFavorite}
+            onSelectActivity={setActivity}
+            rankBeaches={(a) =>
+              beaches
+                .map((b) => ({ beach: b, score: getRecommendation(b.forecast, a, lang)?.score ?? null }))
+                .sort((x, y) => (y.score ?? -1) - (x.score ?? -1))
+            }
+          />
         </div>
 
         {favoriteBeaches.length > 0 && (

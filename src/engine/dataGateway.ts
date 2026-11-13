@@ -14,6 +14,8 @@ export interface ForecastResult {
   mode: DataMode;
   available: boolean;
   data: NormalizedForecast | null;
+  // כשאין רשת והנתונים הגיעו מהעותק השמור במכשיר: מתי נשמרו. אחרת null.
+  cachedAt: string | null;
 }
 
 const MOCK_FILE = '/data/forecast.json';
@@ -24,13 +26,13 @@ export function getDataMode(): DataMode {
 
 export async function loadForecasts(): Promise<ForecastResult> {
   const mode = getDataMode();
-  if (mode === 'live') return { mode, available: false, data: null };
+  if (mode === 'live') return { mode, available: false, data: null, cachedAt: null };
   try {
     const response = await fetch(MOCK_FILE, { cache: 'no-store' });
-    if (!response.ok) return { mode, available: false, data: null };
+    if (!response.ok) return { mode, available: false, data: null, cachedAt: null };
     const data = normalizeForecastFile(await response.json());
-    return { mode, available: data !== null, data };
+    return { mode, available: data !== null, data, cachedAt: response.headers.get('X-SeaVibes-Cached-At') };
   } catch {
-    return { mode, available: false, data: null };
+    return { mode, available: false, data: null, cachedAt: null };
   }
 }
