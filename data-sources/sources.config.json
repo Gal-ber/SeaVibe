@@ -3,6 +3,11 @@
   "dailyCallLimit": 100,
   "maxAgeHours": 7,
   "_maxAgeHours": "תחזית ישנה מ-7 שעות (שתי ריצות שנכשלו ברצף) לא מוצגת: האתר מציג 'לא זמין' ולא המלצה ישנה.",
+  "allowedHosts": [
+    "api.open-meteo.com",
+    "marine-api.open-meteo.com"
+  ],
+  "_allowedHosts": "רשימה לבנה: המשימה המתוזמנת פונה רק לשרתים האלה, ורק ב-https. כתובת אחרת נחסמת גם אם מישהו שינה את url.",
   "sources": [
     {
       "id": "open-meteo-weather",

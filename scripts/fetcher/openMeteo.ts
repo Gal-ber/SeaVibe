@@ -21,6 +21,17 @@ interface Beach { id: string; lat: number; lng: number; sea: { lat: number; lng:
 export const SOURCES = (sourcesConfig.sources as SourceConfig[]).filter((s) => s.enabled);
 export const BEACHES = catalog.beaches as Beach[];
 export const DAILY_CALL_LIMIT: number = sourcesConfig.dailyCallLimit;
+const ALLOWED_HOSTS = new Set<string>(sourcesConfig.allowedHosts);
+
+// רשימה לבנה: רק https, ורק לשרתים שברשימה בקובץ המקורות
+export function isAllowedUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.protocol === 'https:' && ALLOWED_HOSTS.has(u.hostname);
+  } catch {
+    return false;
+  }
+}
 
 export function buildRequestUrl(source: SourceConfig, beaches: Beach[] = BEACHES): string {
   const points = beaches.map((b) => (source.point === 'sea' ? b.sea : { lat: b.lat, lng: b.lng }));

@@ -34,6 +34,16 @@ test('חיפוש פלמחים מציג אותו כחוף פעיל; חיפוש פ
   await expect(page.getByTestId('hero-score')).toContainText(`גלישה: ${scores[0]}/100`);
 });
 
+test('טווח השעות עטוף ב-bdi ומוצג בסדר הנכון גם בעברית (מימין לשמאל)', async ({ page }) => {
+  await onboard(page);
+  const bdi = page.getByTestId('hero-window').locator('bdi');
+  await expect(bdi).toHaveCount(1);
+  const text = await bdi.innerText();
+  expect(text).toMatch(/^\d{2}:00–\d{2}:00$/);
+  const [start, end] = text.split('–');
+  expect(start < end).toBe(true);
+});
+
 test('לחיצה על "רוח" מציבה את עמודת הרוח ראשונה אחרי השעה, והתובנה משתנה', async ({ page }) => {
   await onboard(page);
   await page.locator('main').getByRole('button', { name: /לנתונים המלאים/ }).click();

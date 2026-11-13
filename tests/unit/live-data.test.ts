@@ -1,6 +1,6 @@
 // בדיקות לנתוני אמת (שלב 5), בלי אינטרנט: בניית הבקשה, תרגום התשובה, המשימה המתוזמנת והגשת התחזית.
 import { describe, expect, it } from 'vitest';
-import { buildRequestUrl, SOURCES, toForecastFile, DAILY_CALL_LIMIT } from '../../scripts/fetcher/openMeteo';
+import { buildRequestUrl, SOURCES, toForecastFile, DAILY_CALL_LIMIT, isAllowedUrl } from '../../scripts/fetcher/openMeteo';
 import { runFetch } from '../../scripts/fetcher/worker';
 import { serveForecast } from '../../functions/data/[file]';
 import { normalizeForecastFile } from '../../src/engine/normalize';
@@ -25,6 +25,13 @@ describe('בניית הבקשה', () => {
     expect(url.searchParams.get('timezone')).toBe('Asia/Jerusalem');
     expect(url.searchParams.get('wind_speed_unit')).toBe('kmh');
     expect(url.search).not.toMatch(/key|token/i);
+  });
+  it('רשימה לבנה: רק https לשרתי Open-Meteo שברשימה', () => {
+    expect(isAllowedUrl(buildRequestUrl(weather))).toBe(true);
+    expect(isAllowedUrl(buildRequestUrl(marine))).toBe(true);
+    expect(isAllowedUrl('https://evil.example/v1/forecast')).toBe(false);
+    expect(isAllowedUrl('http://api.open-meteo.com/v1/forecast')).toBe(false);
+    expect(isAllowedUrl('https://api.open-meteo.com.evil.example/x')).toBe(false);
   });
   it('הגלים נמשכים מנקודה בים, לא מקו החוף', () => {
     const lng = new URL(buildRequestUrl(marine)).searchParams.get('longitude')!.split(',').map(Number);

@@ -7,7 +7,7 @@
 import { D1Database } from '../../server/reports/d1';
 import { callsToday, countCall, saveSnapshot } from '../../server/forecast/store';
 import { normalizeForecastFile } from '../../src/engine/normalize';
-import { buildRequestUrl, DAILY_CALL_LIMIT, SOURCES, toForecastFile } from './openMeteo';
+import { buildRequestUrl, DAILY_CALL_LIMIT, isAllowedUrl, SOURCES, toForecastFile } from './openMeteo';
 
 export type FetchOutcome = { status: 'saved' | 'skipped_limit' | 'failed'; calls: number; reason?: string };
 type FetchImpl = (url: string, init?: RequestInit) => Promise<Response>;
@@ -19,10 +19,12 @@ export async function runFetch(db: D1Database, fetchImpl: FetchImpl, now: Date):
 
   const responses: Record<string, unknown> = {};
   for (const source of SOURCES) {
+    const url = buildRequestUrl(source);
+    if (!isAllowedUrl(url)) continue; // כתובת מחוץ לרשימה הלבנה: לא פונים בכלל
     await countCall(db, day);
     calls += 1;
     try {
-      const res = await fetchImpl(buildRequestUrl(source), { signal: AbortSignal.timeout(15_000) });
+      const res = await fetchImpl(url, { signal: AbortSignal.timeout(15_000) });
       if (res.ok) responses[source.id] = await res.json();
     } catch {
       // מקור שנכשל: השדות שלו יהיו null
