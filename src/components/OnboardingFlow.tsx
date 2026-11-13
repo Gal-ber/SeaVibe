@@ -125,7 +125,7 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
     },
     {
       id: 'done',
-      title: "SeaVibe מוכן",
+      title: "SeaVibes מוכן",
       subtitle: "מעכשיו תוכל לראות במהירות מה הווייב של הים היום",
       render: () => (
         <div className="flex flex-col items-center py-12 space-y-8">

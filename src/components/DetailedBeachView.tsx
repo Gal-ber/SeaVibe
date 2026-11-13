@@ -91,7 +91,7 @@ export default function DetailedBeachView({ beach, recommendation, selectedActiv
         </button>
         
         <div className="flex flex-col items-center">
-          <div className="text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-sm mb-0.5">SeaVibe Detailed</div>
+          <div className="text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-sm mb-0.5">SeaVibes Detailed</div>
           <h2 className="text-xl font-black text-slate-900 drop-shadow-sm">{beach.name}</h2>
         </div>
 
@@ -236,7 +236,7 @@ export default function DetailedBeachView({ beach, recommendation, selectedActiv
 
         {/* Raw Data Table - Secondary */}
         <div className="text-center pt-8">
-          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">SeaVibe Engine v1.2</p>
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">SeaVibes Engine v1.2</p>
           <div className="text-slate-200 text-xs">כל הנתונים מבוססים על תחזית ודיווחים מהשטח</div>
         </div>
       </div>

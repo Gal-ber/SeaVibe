@@ -1,0 +1,7 @@
+#!/bin/sh
+# לפני כל שמירה ב-git: בודק שאין סודות בשינויים. אם נמצא סוד, השמירה נעצרת.
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "gitleaks לא מותקן. התקנה: brew install gitleaks"
+  exit 1
+fi
+gitleaks git --staged --config .gitleaks.toml --no-banner --redact

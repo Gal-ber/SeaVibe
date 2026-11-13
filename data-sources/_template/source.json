@@ -1,0 +1,10 @@
+{
+  "_הסבר": "תבנית למקור נתונים חדש. מעתיקים את התיקייה, ממלאים, ומוסיפים שורה ב-sources.config.json עם enabled: false. המפתח עצמו לעולם לא נכתב כאן, רק שם המשתנה שבו הוא שמור.",
+  "id": "my-source",
+  "name": "שם המקור",
+  "url": "https://example.invalid/api",
+  "fields": ["wave_height", "wind_speed", "water_temperature"],
+  "requiresKey": false,
+  "keyEnvName": null,
+  "license": "תנאי השימוש של המקור"
+}

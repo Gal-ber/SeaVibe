@@ -3,6 +3,9 @@
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Bash(cat .env*)",
       "Bash(curl:*)",
       "Bash(wget:*)",
       "WebFetch"

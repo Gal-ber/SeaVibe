@@ -1,0 +1,7 @@
+# הגדרות סריקת הסודות (gitleaks): הכללים הרגילים, בלי לסרוק תיקיות שנוצרות אוטומטית.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "תיקיות שנוצרות אוטומטית"
+paths = ['''node_modules''', '''dist''', '''test-results''', '''playwright-report''', '''\.git/''']

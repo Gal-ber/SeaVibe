@@ -1,20 +1,32 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# SeaVibes
 
-# Run and deploy your AI Studio app
+אפליקציית המלצות ים בעברית: ציון התאמה לפי חוף ופעילות, חלון זמן מומלץ והסבר קצר.
+הציון מראה עד כמה התנאים נוחים לפעילות. הוא לא אישור בטיחות.
 
-This contains everything you need to run your app locally.
+## מצב נוכחי
 
-View your app in AI Studio: https://ai.studio/apps/df5d967f-02f2-4b9e-88a3-26996b48451f
+האפליקציה עובדת על **נתוני דוגמה בלבד** ולא פונה לאינטרנט.
+המתג נמצא בקובץ `config/app.config.json` (`"dataMode": "mock"`).
 
-## Run Locally
+## איך מריצים במחשב
 
-**Prerequisites:**  Node.js
+צריך Node.js מותקן.
 
+1. התקנת החבילות: `npm install`
+2. הפעלה: `npm run dev`, ואז לפתוח בדפדפן את http://127.0.0.1:3000
+3. בדיקה שהכול תקין: `npm run check`
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+`npm run check` בודק שהקוד לא פונה לאינטרנט, שאין מפתחות באתר הבנוי, ושהאתר עובד בדפדפן בלי אף בקשה החוצה.
+הבדיקה צריכה בנוסף את gitleaks (`brew install gitleaks`) ואת הדפדפן של הבדיקות (`npx playwright install chromium`).
+
+## תיקיות
+
+- `src/` — הקוד של האתר (מסכים, רכיבים, מנוע ציון)
+- `config/` — הגדרות וטקסטים שאפשר לשנות בלי לגעת בקוד
+- `data-sources/` — רשימת מקורות הנתונים (כולם כבויים)
+- `tests/` — בדיקות אוטומטיות
+- `docs/` — מסמכי המוצר והדרישות
+
+## מפתחות
+
+כרגע לא צריך אף מפתח. אם יידרש בעתיד, הוא יישמר רק בקובץ `.env.local` (שלא נכנס ל-git) או ב-GitHub Secrets. ראו `.env.example`.

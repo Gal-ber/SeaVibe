@@ -1,24 +1,41 @@
+// הגדרות הבנייה של האתר (Vite).
+// מתי נוגעים: כמעט אף פעם. אסור להוסיף כאן define או משתני סביבה עם מפתחות (כלל ברזל 3).
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 
-export default defineConfig(({mode}) => {
-  const env = loadEnv(mode, '.', '');
+// מדיניות אבטחה לדפדפן: האתר רשאי לטעון ולפנות רק לכתובת שלו עצמו.
+// כך גם אם בטעות יתווסף קוד שפונה לאינטרנט, הדפדפן יחסום אותו.
+export const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ');
+
+// מוסיף את המדיניות רק לאתר הבנוי (dist). בזמן פיתוח Vite צריך סקריפטים פנימיים.
+function addSecurityPolicy(): Plugin {
   return {
-    plugins: [react(), tailwindcss()],
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, '.'),
-      },
-    },
-    server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true',
+    name: 'seavibes-security-policy',
+    apply: 'build',
+    transformIndexHtml(html) {
+      const tag = `<meta http-equiv="Content-Security-Policy" content="${CONTENT_SECURITY_POLICY}" />`;
+      return html.replace('<head>', `<head>\n    ${tag}`);
     },
   };
+}
+
+export default defineConfig({
+  plugins: [react(), tailwindcss(), addSecurityPolicy()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, '.'),
+    },
+  },
 });

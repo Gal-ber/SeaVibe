@@ -2,15 +2,18 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+// המסך הראשי של SeaVibes: מחבר בין ההעדפות, שער הנתונים ומנוע הציון.
+// מתי נוגעים: כשמשנים את מבנה המסך הראשי.
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import { BEACHES, ACTIVITIES } from './data/beaches';
-import { ActivityId, BeachForecast, Beach, UserSettings } from './types';
+import { ActivityId, UserSettings } from './types';
 import { getRecommendation } from './lib/scoringEngine';
-import { fetchBeachForecast } from './services/weatherService';
+import { loadForecasts } from './engine/dataGateway';
+import texts from '../config/texts/he.json';
 import { getDistance, getBackgroundState } from './lib/utils';
 import ActivitySelector from './components/ActivitySelector';
 import BeachSearch from './components/BeachSearch';
@@ -24,7 +27,7 @@ import LocationPermissionCard from './components/LocationPermissionCard';
 export default function App() {
   const [settings, setSettings] = useState<UserSettings>(() => {
     try {
-      const saved = localStorage.getItem('seavibe_settings');
+      const saved = localStorage.getItem('seavibes_settings');
       const parsed = saved ? JSON.parse(saved) : null;
       return parsed ? {
         ...parsed,
@@ -44,42 +47,22 @@ export default function App() {
   const [selectedBeachId, setSelectedBeachId] = useState<string | null>(settings.primaryFavorite || null);
   const [detailedBeachId, setDetailedBeachId] = useState<string | null>(null);
   const [showLocationPrompt, setShowLocationPrompt] = useState(() => {
-    return !localStorage.getItem('seavibe_location_dismissed');
+    return !localStorage.getItem('seavibes_location_dismissed');
   });
-  const [forecasts, setForecasts] = useState<Record<string, BeachForecast>>({});
-  const [loading, setLoading] = useState(false);
 
   const handleDismissLocation = () => {
-    localStorage.setItem('seavibe_location_dismissed', 'true');
+    localStorage.setItem('seavibes_location_dismissed', 'true');
     setShowLocationPrompt(false);
   };
 
   // Persistence
   useEffect(() => {
-    localStorage.setItem('seavibe_settings', JSON.stringify(settings));
+    localStorage.setItem('seavibes_settings', JSON.stringify(settings));
   }, [settings]);
 
-  useEffect(() => {
-    async function loadAllForecasts() {
-      setLoading(true);
-      const newForecasts: Record<string, BeachForecast> = {};
-      
-      const promises = BEACHES.map(async (beach) => {
-        try {
-          const data = await fetchBeachForecast(beach.lat, beach.lng);
-          newForecasts[beach.id] = data;
-        } catch (err) {
-          console.error(`Failed for ${beach.name}`, err);
-        }
-      });
-
-      await Promise.allSettled(promises);
-      setForecasts(prev => ({ ...prev, ...newForecasts }));
-      setLoading(false);
-    }
-
-    loadAllForecasts();
-  }, []);
+  // כל התחזיות מגיעות משער הנתונים. במצב mock אין שום פנייה לאינטרנט.
+  const forecastResult = useMemo(() => loadForecasts(), []);
+  const forecasts = forecastResult.forecasts;
 
   const handleOnboardingComplete = (data: { favorites: string[], favoriteActivities: ActivityId[], locationPermission: boolean }) => {
     setSettings({
@@ -166,13 +149,16 @@ export default function App() {
       <DynamicSeaBackground state={bgState} />
 
       <main className="max-w-md mx-auto px-6 pt-6 pb-20">
-        {/* 1. SeaVibe Brand Header */}
+        {/* 1. SeaVibes Brand Header */}
         <header className="mb-6 py-2">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-8 h-8 bg-sea-600 rounded-xl flex items-center justify-center shadow-lg shadow-sea-500/20">
               <LucideIcons.Waves className="text-white" size={18} />
             </div>
-            <span className="text-xl font-black text-slate-900 tracking-tight">SeaVibe</span>
+            <span className="text-xl font-black text-slate-900 tracking-tight">SeaVibes</span>
+            <span className="ms-auto text-[11px] font-bold text-slate-700 bg-sand-200 px-2 py-0.5 rounded-full">
+              {forecastResult.mode === 'mock' ? texts['dataBadge.mock'] : texts['dataBadge.unavailable']}
+            </span>
           </div>
           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">מה הווייב של הים היום?</p>
         </header>
