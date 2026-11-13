@@ -14,7 +14,9 @@
     "test": "vitest run",
     "screenshots": "vite build && node tests/screenshots.mjs",
     "build:remote": "vite build --mode remote",
-    "deploy:preview": "npm run build:remote && wrangler pages deploy dist --project-name seavibes --branch preview"
+    "deploy:preview": "npm run build:remote && wrangler pages deploy dist --project-name seavibes --branch preview",
+    "status": "node scripts/status.mjs",
+    "deploy:production": "echo \"פריסה ציבורית דורשת אישור הבעלים. ראו docs/deploy-cloudflare.md\" && exit 1"
   },
   "dependencies": {
     "@fontsource/assistant": "5.3.0",

@@ -9,6 +9,7 @@ import { ActivityId } from '../types';
 import { useI18n } from '../i18n/I18nProvider';
 import LanguageToggle from './LanguageToggle';
 import { dismissLocation, findNearestBeach } from '../lib/location';
+import PrivacyInfo from './PrivacyInfo';
 
 interface OnboardingFlowProps {
   initialFavorites?: string[];
@@ -156,6 +157,9 @@ export default function OnboardingFlow({ onComplete, initialFavorites = [], init
             {current.render()}
           </motion.div>
         </AnimatePresence>
+        <div className="mt-6 flex justify-center">
+          <PrivacyInfo />
+        </div>
       </div>
     </div>
   );

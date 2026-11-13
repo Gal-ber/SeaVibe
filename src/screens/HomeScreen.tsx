@@ -26,6 +26,7 @@ import DetailedBeachView from '../components/DetailedBeachView';
 import LocationPermissionCard from '../components/LocationPermissionCard';
 import LanguageToggle from '../components/LanguageToggle';
 import HourlySection from '../components/HourlySection';
+import PrivacyInfo from '../components/PrivacyInfo';
 
 export default function HomeScreen({ settings, toggleFavorite, setPrimary, reopenPreferences, setLocationGranted }: ReturnType<typeof useSettings>) {
   const { t, lang } = useI18n();
@@ -154,6 +155,9 @@ export default function HomeScreen({ settings, toggleFavorite, setPrimary, reope
           </aside>
         )}
         </div>
+        <footer className="mt-12 flex justify-center">
+          <PrivacyInfo />
+        </footer>
       </main>
 
       <AnimatePresence>

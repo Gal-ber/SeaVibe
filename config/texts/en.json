@@ -238,5 +238,18 @@
   "source.name": "Source: {source}",
   "source.attribution": "Weather data: Open-Meteo.com (CC BY 4.0)",
   "param.waveHeightNote": "Wave height comes from a sea model about 2–3 km offshore. Waves at the waterline can differ.",
-  "score.experimental": "Experimental score: comfort thresholds are still being calibrated and may change."
+  "score.experimental": "Experimental score: comfort thresholds are still being calibrated and may change.",
+  "privacy.link": "Privacy & terms",
+  "privacy.title": "Privacy & terms",
+  "privacy.close": "Close",
+  "privacy.device.title": "What stays on your device",
+  "privacy.device.body": "Your chosen beaches and activities, language, and your field-report votes. You can delete all of it in your browser settings (clear site data).",
+  "privacy.location.title": "Location",
+  "privacy.location.body": "Location is requested only if you tap \"Allow location\". It's used only to find the nearest beach, stays on your device, and is never saved or sent anywhere.",
+  "privacy.reports.title": "Field reports",
+  "privacy.reports.body": "A report contains only: beach, activity, match or not, and a reason from a list. An encrypted anonymous ID is stored, with no name, location or free text. Reports are deleted automatically after 7 days.",
+  "privacy.tracking.title": "Tracking",
+  "privacy.tracking.body": "No ads, no analytics tools and no third-party tracking.",
+  "privacy.data.title": "Data source",
+  "privacy.data.body": "Weather and sea forecast: Open-Meteo.com, licensed CC BY 4.0. Data updates every 3 hours and may be inaccurate."
 }

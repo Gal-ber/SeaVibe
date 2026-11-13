@@ -90,3 +90,20 @@ test('אפשר לדלג על כל שלבי הפתיחה', async ({ page }) => {
   await page.getByRole('button', { name: 'בוא נבדוק את הים' }).click();
   await expect(page.getByRole('heading', { name: 'איזה חוף בודקים היום?' })).toBeVisible();
 });
+
+test('חלון "פרטיות ותנאים": נפתח מהפתיחה ומהמסך הראשי, ונסגר ב-Esc', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'פרטיות ותנאים' }).click();
+  const dialog = page.getByRole('dialog', { name: 'פרטיות ותנאים' });
+  await expect(dialog).toContainText('אין פרסומות');
+  await expect(dialog).toContainText('נמחקים אוטומטית אחרי 7 ימים');
+  await expect(dialog).toContainText('Open-Meteo.com');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+
+  await onboard(page);
+  await page.getByRole('button', { name: 'פרטיות ותנאים' }).click();
+  await expect(page.getByRole('dialog', { name: 'פרטיות ותנאים' })).toContainText('אינו אישור בטיחות');
+  await page.getByRole('button', { name: 'סגירה' }).click();
+  await expect(page.getByRole('dialog', { name: 'פרטיות ותנאים' })).toHaveCount(0);
+});

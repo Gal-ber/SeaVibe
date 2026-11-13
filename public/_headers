@@ -1,0 +1,15 @@
+# כותרות אבטחה ל-Cloudflare Pages (חלות על הקבצים הסטטיים של האתר).
+# frame-ancestors / X-Frame-Options: אסור להטמיע את האתר בתוך אתר אחר (הגנה מפני "לחיצה מוסתרת").
+# Permissions-Policy: מיקום רק לאתר עצמו. מצלמה, מיקרופון ותשלום חסומים לגמרי.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=(), usb=()
+
+# אתר הבדיקה וכל כתובת פריסה זמנית: לא להופיע במנועי חיפוש
+https://preview.seavibes-7ig.pages.dev/*
+  X-Robots-Tag: noindex, nofollow
+https://:hash.seavibes-7ig.pages.dev/*
+  X-Robots-Tag: noindex, nofollow
